@@ -1,112 +1,122 @@
 # 🚀 MarzPay Collections Plugin - Quick Start Guide
 
-Get your MarzPay payment system up and running in 5 minutes!
+**Get up and running with MarzPay Collections in under 5 minutes!**
 
 ## ⚡ Quick Setup (5 Minutes)
 
-### 1. Install & Activate Plugin
-- Upload plugin to WordPress
-- Activate from Plugins menu
-- That's it! ✅
+### **1. Download & Install**
+```bash
+# Option 1: Download ZIP from GitHub
+# Visit: https://github.com/Katznicho/marzpaywordpressplugin
+# Click "Code" → "Download ZIP"
 
-### 2. Configure API Credentials
+# Option 2: Clone with Git
+git clone https://github.com/Katznicho/marzpaywordpressplugin.git
+
+# Option 3: WordPress Admin
+# Plugins → Add New → Upload Plugin → Choose ZIP
+```
+
+### **2. Activate Plugin**
+- Go to **WordPress Admin → Plugins**
+- Find "MarzPay Collections"
+- Click **"Activate"**
+
+### **3. Configure API Credentials**
 - Go to **Settings → MarzPay**
-- Enter your MarzPay API User & Key
-- Save settings
+- Enter your **API User** and **API Key**
+- (Optional) Set custom **Callback URL**
+- Click **"Save Settings"**
 
-### 3. Test Connection
+### **4. Test Connection**
 - Click **"Test API Connection"**
-- Enter your phone number
+- Enter your phone number: `256759983853`
 - Verify success message
 
-### 4. Use Payment Button
-```
+### **5. Use Shortcode**
+```php
 [marzpay_button amount="1000" phone="256759983853"]
 ```
 
 ## 🎯 Essential Shortcodes
 
-### Basic Payment Button
-```
+### **Basic Payment Button**
+```php
 [marzpay_button amount="1000" phone="256759983853"]
 ```
 
-### Multiple Amounts
-```
-[marzpay_button amount="500" phone="256759983853"]
-[marzpay_button amount="1000" phone="256759983853"]
-[marzpay_button amount="5000" phone="256759983853"]
+### **Multiple Payment Options**
+```php
+<h3>Choose Amount:</h3>
+<p>Small: [marzpay_button amount="1000" phone="256759983853"]</p>
+<p>Medium: [marzpay_button amount="5000" phone="256759983853"]</p>
+<p>Large: [marzpay_button amount="10000" phone="256759983853"]</p>
 ```
 
 ## 📱 Phone Number Formats
 
-| Input | Converts To | Status |
-|-------|-------------|---------|
-| `256759983853` | `+256759983853` | ✅ Recommended |
-| `0759983853` | `+256759983853` | ✅ Supported |
-| `+256759983853` | `+256759983853` | ✅ Direct |
+| Input | Converts To | Notes |
+|-------|-------------|-------|
+| `256759983853` | `+256759983853` | **Recommended** |
+| `0759983853` | `+256759983853` | Auto-prefixed |
+| `+256759983853` | `+256759983853` | Used as-is |
 
-## 💰 Amount Limits
+## 💰 Amount Requirements
 
 - **Minimum**: 500 UGX
 - **Maximum**: 10,000,000 UGX
 - **Format**: Whole numbers only
+- **Examples**: 1000, 5000, 10000, 50000
 
-## 🔧 Common Settings
+## ⚙️ Common Settings
 
-### API Credentials
+### **API Credentials**
 - **API User**: Your MarzPay username
 - **API Key**: Your MarzPay API key
-- **Callback URL**: (Optional) Custom webhook URL
+- **Callback URL**: Webhook notifications (optional)
 
-### Default Callback
-If no custom callback is set, the plugin uses:
+### **Default Callback**
+If no custom URL set, uses:
 ```
 https://yoursite.com/marzpay-callback
 ```
 
-## 🐛 Quick Troubleshooting
+## 🔧 Quick Troubleshooting
 
-| Error | Quick Fix |
-|-------|-----------|
-| "Missing API credentials" | Enter credentials in Settings → MarzPay |
-| "Invalid amount" | Use amounts between 500-10,000,000 UGX |
-| "Invalid phone format" | Use: 256759983853, 0759983853, or +256759983853 |
-| "API connection failed" | Test connection from admin panel |
+### **"Invalid API response"**
+- Check API credentials
+- Test API connection
+- Verify internet connectivity
 
-## 🎨 Customization
+### **"URI too large"**
+- Use "View Detailed Error Information"
+- Check error logs
+- Enable WordPress debugging
 
-### CSS Styling
-```css
-/* Custom button styles */
-.marzpay-button {
-    background: linear-gradient(45deg, #0073aa, #005177);
-    border-radius: 25px;
-    box-shadow: 0 4px 15px rgba(0,115,170,0.3);
-}
-```
+### **"422 Validation Error"**
+- Verify amount (500-10,000,000 UGX)
+- Check phone number format
+- Ensure reference is valid UUID
 
-### Debug Information
-```
-[marzpay_debug]
-```
-*Admin only - shows API status and configuration*
+### **"Minimum amount 500 UGX"**
+- Increase amount to 500+ UGX
+- Use whole numbers only
 
-## 📞 Need Help?
+## 📚 Next Steps
 
-1. **Check this guide** - covers 90% of issues
-2. **Test API connection** - from admin panel
-3. **Enable debug mode** - add to wp-config.php:
-   ```php
-   define('WP_DEBUG', true);
-   define('WP_DEBUG_LOG', true);
-   ```
-4. **Contact support** - if all else fails
+1. **Read Full Documentation**: [README.md](README.md)
+2. **Troubleshooting Guide**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+3. **Report Issues**: [GitHub Issues](https://github.com/Katznicho/marzpaywordpressplugin/issues)
+4. **Get Support**: Contact MarzPay support
 
-## 🎉 You're Ready!
+## 🚀 Advanced Features
 
-Your MarzPay payment system is now active. Users can make payments using the shortcode buttons you create!
+- **Debug Shortcode**: `[marzpay_debug]`
+- **Custom Callback URLs**
+- **Phone Number Validation**
+- **Amount Limits**
+- **Secure UUID Generation**
 
 ---
 
-**Need more details?** Check the full [README.md](README.md) for comprehensive documentation.
+**Need help? Check the full documentation or contact support!**
