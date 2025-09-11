@@ -284,10 +284,31 @@ class MarzPay_Admin_Settings {
         
         if ( isset( $result['status'] ) && $result['status'] === 'success' ) {
             $account_data = $result['data'] ?? array();
+            
+            // Try different possible field names for the account name
+            $account_name = '';
+            if ( isset( $account_data['name'] ) ) {
+                $account_name = $account_data['name'];
+            } elseif ( isset( $account_data['username'] ) ) {
+                $account_name = $account_data['username'];
+            } elseif ( isset( $account_data['email'] ) ) {
+                $account_name = $account_data['email'];
+            } elseif ( isset( $account_data['account_name'] ) ) {
+                $account_name = $account_data['account_name'];
+            } else {
+                $account_name = 'Account ID: ' . ( $account_data['id'] ?? 'N/A' );
+            }
+            
             $message = sprintf( 
                 __( 'API connection successful! Connected as: %s', 'marzpay' ), 
-                $account_data['name'] ?? $account_data['email'] ?? 'Unknown'
+                $account_name
             );
+            
+            // Add debug information if WP_DEBUG is enabled
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                $message .= '<br><small>Debug: Available fields: ' . implode( ', ', array_keys( $account_data ) ) . '</small>';
+            }
+            
             wp_send_json_success( array( 'message' => $message ) );
         } else {
             $error_message = $result['message'] ?? __( 'Unknown error occurred', 'marzpay' );

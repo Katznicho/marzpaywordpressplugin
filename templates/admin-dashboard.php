@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                         <tbody>
                             <tr>
                                 <td><strong><?php _e( 'Account Name:', 'marzpay' ); ?></strong></td>
-                                <td><?php echo esc_html( $account['data']['name'] ?? 'N/A' ); ?></td>
+                                <td><?php echo esc_html( $account['data']['name'] ?? $account['data']['username'] ?? $account['data']['account_name'] ?? 'N/A' ); ?></td>
                             </tr>
                             <tr>
                                 <td><strong><?php _e( 'Email:', 'marzpay' ); ?></strong></td>
@@ -33,8 +33,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                             </tr>
                             <tr>
                                 <td><strong><?php _e( 'Phone:', 'marzpay' ); ?></strong></td>
-                                <td><?php echo esc_html( $account['data']['phone'] ?? 'N/A' ); ?></td>
+                                <td><?php echo esc_html( $account['data']['phone'] ?? $account['data']['phone_number'] ?? 'N/A' ); ?></td>
                             </tr>
+                            <?php if ( isset( $account['data']['id'] ) ) : ?>
+                            <tr>
+                                <td><strong><?php _e( 'Account ID:', 'marzpay' ); ?></strong></td>
+                                <td><?php echo esc_html( $account['data']['id'] ); ?></td>
+                            </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
