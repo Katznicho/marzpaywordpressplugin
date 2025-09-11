@@ -283,11 +283,13 @@ class MarzPay_Admin_Settings {
         $result = $api_client->get_account();
         
         if ( isset( $result['status'] ) && $result['status'] === 'success' ) {
-            $account_data = $result['data'] ?? array();
+            $account_data = $result['data']['account'] ?? array();
             
             // Try different possible field names for the account name
             $account_name = '';
-            if ( isset( $account_data['name'] ) ) {
+            if ( isset( $account_data['business_name'] ) ) {
+                $account_name = $account_data['business_name'];
+            } elseif ( isset( $account_data['name'] ) ) {
                 $account_name = $account_data['name'];
             } elseif ( isset( $account_data['username'] ) ) {
                 $account_name = $account_data['username'];
@@ -296,7 +298,7 @@ class MarzPay_Admin_Settings {
             } elseif ( isset( $account_data['account_name'] ) ) {
                 $account_name = $account_data['account_name'];
             } else {
-                $account_name = 'Account ID: ' . ( $account_data['id'] ?? 'N/A' );
+                $account_name = 'Account ID: ' . ( $account_data['uuid'] ?? 'N/A' );
             }
             
             $message = sprintf( 
@@ -304,9 +306,7 @@ class MarzPay_Admin_Settings {
                 $account_name
             );
             
-            // Add debug information (temporarily always show for debugging)
-            $message .= '<br><small>Debug: Available fields: ' . implode( ', ', array_keys( $account_data ) ) . '</small>';
-            $message .= '<br><small>Debug: Full response: ' . wp_json_encode( $result, JSON_PRETTY_PRINT ) . '</small>';
+            // Debug information removed - field mapping fixed
             
             wp_send_json_success( array( 'message' => $message ) );
         } else {

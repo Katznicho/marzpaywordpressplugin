@@ -19,28 +19,40 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         <!-- Account Information -->
         <div class="marzpay-dashboard-section">
             <h2><?php _e( 'Account Information', 'marzpay' ); ?></h2>
-            <?php if ( isset( $account['data'] ) ) : ?>
+            <?php if ( isset( $account['data']['account'] ) ) : ?>
                 <div class="marzpay-account-info">
                     <table class="widefat">
                         <tbody>
                             <tr>
-                                <td><strong><?php _e( 'Account Name:', 'marzpay' ); ?></strong></td>
-                                <td><?php echo esc_html( $account['data']['name'] ?? $account['data']['username'] ?? $account['data']['account_name'] ?? 'N/A' ); ?></td>
+                                <td><strong><?php _e( 'Business Name:', 'marzpay' ); ?></strong></td>
+                                <td><?php echo esc_html( $account['data']['account']['business_name'] ?? 'N/A' ); ?></td>
                             </tr>
                             <tr>
                                 <td><strong><?php _e( 'Email:', 'marzpay' ); ?></strong></td>
-                                <td><?php echo esc_html( $account['data']['email'] ?? 'N/A' ); ?></td>
+                                <td><?php echo esc_html( $account['data']['account']['email'] ?? 'N/A' ); ?></td>
                             </tr>
                             <tr>
-                                <td><strong><?php _e( 'Phone:', 'marzpay' ); ?></strong></td>
-                                <td><?php echo esc_html( $account['data']['phone'] ?? $account['data']['phone_number'] ?? 'N/A' ); ?></td>
+                                <td><strong><?php _e( 'Contact Phone:', 'marzpay' ); ?></strong></td>
+                                <td><?php echo esc_html( $account['data']['account']['contact_phone'] ?? 'N/A' ); ?></td>
                             </tr>
-                            <?php if ( isset( $account['data']['id'] ) ) : ?>
                             <tr>
-                                <td><strong><?php _e( 'Account ID:', 'marzpay' ); ?></strong></td>
-                                <td><?php echo esc_html( $account['data']['id'] ); ?></td>
+                                <td><strong><?php _e( 'Business Address:', 'marzpay' ); ?></strong></td>
+                                <td><?php echo esc_html( $account['data']['account']['business_address'] ?? 'N/A' ); ?></td>
                             </tr>
-                            <?php endif; ?>
+                            <tr>
+                                <td><strong><?php _e( 'Account Status:', 'marzpay' ); ?></strong></td>
+                                <td>
+                                    <?php 
+                                    $status = $account['data']['account']['status']['account_status'] ?? 'Unknown';
+                                    $status_class = $status === 'active' ? 'success' : 'warning';
+                                    echo '<span class="status-' . $status_class . '">' . ucfirst( $status ) . '</span>';
+                                    ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong><?php _e( 'Account UUID:', 'marzpay' ); ?></strong></td>
+                                <td><?php echo esc_html( $account['data']['account']['uuid'] ?? 'N/A' ); ?></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -52,7 +64,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         <!-- Balance Information -->
         <div class="marzpay-dashboard-section">
             <h2><?php _e( 'Account Balance', 'marzpay' ); ?></h2>
-            <?php if ( isset( $balance['data'] ) ) : ?>
+            <?php if ( isset( $account['data']['account']['balance'] ) ) : ?>
+                <div class="marzpay-balance-info">
+                    <div class="balance-card">
+                        <h3><?php echo esc_html( $account['data']['account']['balance']['formatted'] . ' ' . $account['data']['account']['balance']['currency'] ); ?></h3>
+                        <p><?php _e( 'Available Balance', 'marzpay' ); ?></p>
+                    </div>
+                </div>
+            <?php elseif ( isset( $balance['data'] ) ) : ?>
                 <div class="marzpay-balance-info">
                     <div class="balance-card">
                         <h3><?php echo marzpay_format_amount( $balance['data']['balance'], $balance['data']['currency'] ?? 'UGX' ); ?></h3>
