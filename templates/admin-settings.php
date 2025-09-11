@@ -15,13 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         <div class="marzpay-settings-tabs">
             <nav class="nav-tab-wrapper">
                 <a href="#api-settings" class="nav-tab nav-tab-active"><?php _e( 'API Settings', 'marzpay' ); ?></a>
-                <a href="#webhook-settings" class="nav-tab"><?php _e( 'Webhook Settings', 'marzpay' ); ?></a>
                 <a href="#general-settings" class="nav-tab"><?php _e( 'General Settings', 'marzpay' ); ?></a>
             </nav>
             
             <div id="api-settings" class="tab-content active">
                 <h2><?php _e( 'API Configuration', 'marzpay' ); ?></h2>
-                <p><?php _e( 'Configure your MarzPay API credentials and environment settings.', 'marzpay' ); ?></p>
+                <p><?php _e( 'Configure your MarzPay API credentials.', 'marzpay' ); ?></p>
                 
                 <table class="form-table">
                     <tr>
@@ -46,22 +45,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                             <p class="description"><?php _e( 'Your MarzPay API key.', 'marzpay' ); ?></p>
                         </td>
                     </tr>
-                    <tr>
-                        <th scope="row">
-                            <label for="marzpay_environment"><?php _e( 'Environment', 'marzpay' ); ?></label>
-                        </th>
-                        <td>
-                            <select id="marzpay_environment" name="marzpay_environment">
-                                <option value="test" <?php selected( get_option( 'marzpay_environment', 'test' ), 'test' ); ?>>
-                                    <?php _e( 'Test', 'marzpay' ); ?>
-                                </option>
-                                <option value="production" <?php selected( get_option( 'marzpay_environment' ), 'production' ); ?>>
-                                    <?php _e( 'Production', 'marzpay' ); ?>
-                                </option>
-                            </select>
-                            <p class="description"><?php _e( 'Select the environment for API calls.', 'marzpay' ); ?></p>
-                        </td>
-                    </tr>
                 </table>
                 
                 <div class="marzpay-api-test">
@@ -72,62 +55,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 </div>
             </div>
             
-            <div id="webhook-settings" class="tab-content">
-                <h2><?php _e( 'Webhook Configuration', 'marzpay' ); ?></h2>
-                <p><?php _e( 'Configure webhook settings for receiving payment notifications.', 'marzpay' ); ?></p>
-                
-                <table class="form-table">
-                    <tr>
-                        <th scope="row">
-                            <label for="marzpay_webhook_secret"><?php _e( 'Webhook Secret', 'marzpay' ); ?></label>
-                        </th>
-                        <td>
-                            <input type="text" id="marzpay_webhook_secret" name="marzpay_webhook_secret" 
-                                   value="<?php echo esc_attr( get_option( 'marzpay_webhook_secret' ) ); ?>" 
-                                   class="regular-text" />
-                            <button type="button" id="generate-webhook-secret" class="button button-secondary">
-                                <?php _e( 'Generate New Secret', 'marzpay' ); ?>
-                            </button>
-                            <p class="description"><?php _e( 'Secret key for webhook signature verification.', 'marzpay' ); ?></p>
-                        </td>
-                    </tr>
-                </table>
-                
-                <div class="marzpay-webhook-urls">
-                    <h3><?php _e( 'Webhook URLs', 'marzpay' ); ?></h3>
-                    <p><?php _e( 'Use these URLs in your MarzPay dashboard to receive webhook notifications:', 'marzpay' ); ?></p>
-                    
-                    <table class="form-table">
-                        <tr>
-                            <th scope="row"><?php _e( 'Airtel Callback', 'marzpay' ); ?></th>
-                            <td>
-                                <code><?php echo marzpay_get_webhook_url( 'airtel' ); ?></code>
-                                <button type="button" class="button button-secondary copy-webhook-url" data-url="<?php echo marzpay_get_webhook_url( 'airtel' ); ?>">
-                                    <?php _e( 'Copy', 'marzpay' ); ?>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><?php _e( 'MTN Callback', 'marzpay' ); ?></th>
-                            <td>
-                                <code><?php echo marzpay_get_webhook_url( 'mtn' ); ?></code>
-                                <button type="button" class="button button-secondary copy-webhook-url" data-url="<?php echo marzpay_get_webhook_url( 'mtn' ); ?>">
-                                    <?php _e( 'Copy', 'marzpay' ); ?>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><?php _e( 'MTN Disbursement Callback', 'marzpay' ); ?></th>
-                            <td>
-                                <code><?php echo marzpay_get_webhook_url( 'mtn-disbursement' ); ?></code>
-                                <button type="button" class="button button-secondary copy-webhook-url" data-url="<?php echo marzpay_get_webhook_url( 'mtn-disbursement' ); ?>">
-                                    <?php _e( 'Copy', 'marzpay' ); ?>
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
             
             <div id="general-settings" class="tab-content">
                 <h2><?php _e( 'General Settings', 'marzpay' ); ?></h2>
@@ -221,25 +148,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     border-radius: 4px;
 }
 
-.marzpay-webhook-urls {
-    margin-top: 20px;
-}
-
-.marzpay-webhook-urls code {
-    display: inline-block;
-    padding: 5px 10px;
-    background: #f1f1f1;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    font-family: monospace;
-    margin-right: 10px;
-    max-width: 400px;
-    word-break: break-all;
-}
-
-.copy-webhook-url {
-    margin-left: 10px;
-}
 </style>
 
 <script>
@@ -286,18 +194,5 @@ jQuery(document).ready(function($) {
         });
     });
     
-    // Generate webhook secret
-    $('#generate-webhook-secret').on('click', function() {
-        var secret = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-        $('#marzpay_webhook_secret').val(secret);
-    });
-    
-    // Copy webhook URL
-    $('.copy-webhook-url').on('click', function() {
-        var url = $(this).data('url');
-        navigator.clipboard.writeText(url).then(function() {
-            alert('<?php _e( 'URL copied to clipboard!', 'marzpay' ); ?>');
-        });
-    });
 });
 </script>

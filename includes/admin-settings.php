@@ -59,15 +59,6 @@ class MarzPay_Admin_Settings {
             array( $this, 'transactions_page' )
         );
         
-        // Webhooks submenu
-        add_submenu_page(
-            'marzpay-dashboard',
-            __( 'Webhooks', 'marzpay' ),
-            __( 'Webhooks', 'marzpay' ),
-            'manage_options',
-            'marzpay-webhooks',
-            array( $this, 'webhooks_page' )
-        );
         
         // Settings submenu
         add_submenu_page(
@@ -87,10 +78,6 @@ class MarzPay_Admin_Settings {
         // API Settings
         register_setting( 'marzpay_settings_group', 'marzpay_api_user' );
         register_setting( 'marzpay_settings_group', 'marzpay_api_key' );
-        register_setting( 'marzpay_settings_group', 'marzpay_environment' );
-        
-        // Webhook Settings
-        register_setting( 'marzpay_settings_group', 'marzpay_webhook_secret' );
         
         // General Settings
         register_setting( 'marzpay_settings_group', 'marzpay_default_currency' );
@@ -106,12 +93,6 @@ class MarzPay_Admin_Settings {
             'marzpay-settings'
         );
         
-        add_settings_section(
-            'marzpay_webhook_section',
-            __( 'Webhook Configuration', 'marzpay' ),
-            array( $this, 'webhook_section_callback' ),
-            'marzpay-settings'
-        );
         
         add_settings_section(
             'marzpay_general_section',
@@ -187,15 +168,6 @@ class MarzPay_Admin_Settings {
         include MARZPAY_PLUGIN_DIR . 'templates/admin-transactions.php';
     }
     
-    /**
-     * Webhooks page
-     */
-    public function webhooks_page() {
-        $database = MarzPay_Database::get_instance();
-        $webhooks = $database->get_webhooks();
-        
-        include MARZPAY_PLUGIN_DIR . 'templates/admin-webhooks.php';
-    }
     
     /**
      * Settings page
@@ -219,12 +191,6 @@ class MarzPay_Admin_Settings {
         // Save API settings
         update_option( 'marzpay_api_user', sanitize_text_field( $_POST['marzpay_api_user'] ) );
         update_option( 'marzpay_api_key', sanitize_text_field( $_POST['marzpay_api_key'] ) );
-        update_option( 'marzpay_environment', sanitize_text_field( $_POST['marzpay_environment'] ) );
-        
-        // Save webhook settings
-        if ( ! empty( $_POST['marzpay_webhook_secret'] ) ) {
-            update_option( 'marzpay_webhook_secret', sanitize_text_field( $_POST['marzpay_webhook_secret'] ) );
-        }
         
         // Save general settings
         update_option( 'marzpay_default_currency', sanitize_text_field( $_POST['marzpay_default_currency'] ) );
@@ -241,15 +207,9 @@ class MarzPay_Admin_Settings {
      * API section callback
      */
     public function api_section_callback() {
-        echo '<p>' . __( 'Configure your MarzPay API credentials and environment settings.', 'marzpay' ) . '</p>';
+        echo '<p>' . __( 'Configure your MarzPay API credentials.', 'marzpay' ) . '</p>';
     }
     
-    /**
-     * Webhook section callback
-     */
-    public function webhook_section_callback() {
-        echo '<p>' . __( 'Configure webhook settings for receiving payment notifications.', 'marzpay' ) . '</p>';
-    }
     
     /**
      * General section callback

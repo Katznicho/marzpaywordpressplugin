@@ -185,8 +185,6 @@ function marzpay_activate() {
     
     // Set default options
     add_option( 'marzpay_version', MARZPAY_VERSION );
-    add_option( 'marzpay_environment', 'test' );
-    add_option( 'marzpay_webhook_secret', wp_generate_password( 32, false ) );
     
     // Flush rewrite rules for webhook endpoints
     flush_rewrite_rules();
@@ -211,7 +209,5 @@ function marzpay_uninstall() {
     delete_option( 'marzpay_version' );
     delete_option( 'marzpay_api_user' );
     delete_option( 'marzpay_api_key' );
-    delete_option( 'marzpay_environment' );
-    delete_option( 'marzpay_webhook_secret' );
 }
 register_uninstall_hook( __FILE__, 'marzpay_uninstall' );
