@@ -61,6 +61,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 </div>
 
 <style>
+.marzpay-send-form {
+    max-width: 500px;
+    margin: 20px 0;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
 .marzpay-send-form .form-group {
     margin-bottom: 20px;
 }
