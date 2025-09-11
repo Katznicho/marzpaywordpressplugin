@@ -134,6 +134,12 @@ class MarzPay_Admin_Settings {
         // Get recent transactions
         $recent_transactions = $database->get_transactions( array( 'limit' => 10 ) );
         
+        // Debug information (temporarily)
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( 'MarzPay Dashboard Debug - Total transactions: ' . $total_transactions );
+            error_log( 'MarzPay Dashboard Debug - Recent transactions count: ' . count( $recent_transactions ) );
+        }
+        
         include MARZPAY_PLUGIN_DIR . 'templates/admin-dashboard.php';
     }
     

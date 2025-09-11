@@ -82,6 +82,19 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         <!-- Transaction Statistics -->
         <div class="marzpay-dashboard-section">
             <h2><?php _e( 'Transaction Statistics', 'marzpay' ); ?></h2>
+            
+            <!-- Temporary Debug Info -->
+            <?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) : ?>
+                <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 4px; font-family: monospace; font-size: 12px;">
+                    <strong>Debug Info:</strong><br>
+                    Total: <?php echo $total_transactions; ?><br>
+                    Successful: <?php echo $successful_transactions; ?><br>
+                    Pending: <?php echo $pending_transactions; ?><br>
+                    Failed: <?php echo $failed_transactions; ?><br>
+                    Recent count: <?php echo count( $recent_transactions ); ?>
+                </div>
+            <?php endif; ?>
+            
             <?php if ( $total_transactions > 0 ) : ?>
                 <div class="marzpay-stats-grid">
                     <div class="stat-card">
