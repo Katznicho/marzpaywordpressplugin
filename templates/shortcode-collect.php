@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <input type="tel" id="marzpay_phone" name="phone" 
                        value="<?php echo esc_attr( $atts['phone'] ); ?>" 
                        placeholder="+256759983853" required />
-                <small class="description"><?php _e( 'Enter phone number in international format (e.g., +256759983853)', 'marzpay' ); ?></small>
+                <small class="description"><?php _e( 'Enter Uganda phone number in international format (e.g., +256759983853)', 'marzpay' ); ?></small>
             </div>
             
             <div class="form-group">

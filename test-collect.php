@@ -133,7 +133,7 @@ $ajax_url = admin_url('admin-ajax.php');
             <div class="form-group">
                 <label for="phone">Phone Number *</label>
                 <input type="tel" id="phone" name="phone" value="+256759983853" placeholder="+256759983853" required>
-                <div class="description">Enter phone number in international format (e.g., +256759983853)</div>
+                <div class="description">Enter Uganda phone number in international format (e.g., +256759983853)</div>
             </div>
             
             <div class="form-group">
@@ -148,15 +148,7 @@ $ajax_url = admin_url('admin-ajax.php');
                 <div class="description">Optional description for this transaction</div>
             </div>
             
-            <div class="form-group">
-                <label for="country">Country</label>
-                <select id="country" name="country">
-                    <option value="UG">Uganda</option>
-                    <option value="KE">Kenya</option>
-                    <option value="TZ">Tanzania</option>
-                </select>
-                <div class="description">Select the country for the phone number</div>
-            </div>
+            <input type="hidden" id="country" name="country" value="UG">
             
             <div class="form-group">
                 <label for="callback_url">Callback URL</label>

@@ -246,23 +246,27 @@ class MarzPay_API_Client {
     }
     
     public function validate_phone_number( $phone, $country = 'UG' ) {
-        // Basic phone validation for Uganda
-        if ( $country === 'UG' ) {
-            // Remove all non-numeric characters except +
-            $phone = preg_replace( '/[^0-9+]/', '', $phone );
-            
-            // Handle international format with +
-            if ( strpos( $phone, '+' ) === 0 ) {
-                $phone = substr( $phone, 1 ); // Remove the +
-            }
-            
-            // Now validate the numeric part
-            if ( strlen( $phone ) === 9 && substr( $phone, 0, 1 ) === '7' ) {
-                return '256' . $phone;
-            } elseif ( strlen( $phone ) === 12 && substr( $phone, 0, 3 ) === '256' ) {
-                return $phone;
-            }
+        // Phone validation for Uganda only (UG is the only supported country)
+        if ( $country !== 'UG' ) {
+            return false; // Only Uganda is supported
         }
+        
+        // Remove all non-numeric characters except +
+        $phone = preg_replace( '/[^0-9+]/', '', $phone );
+        
+        // Handle international format with +
+        if ( strpos( $phone, '+' ) === 0 ) {
+            $phone = substr( $phone, 1 ); // Remove the +
+        }
+        
+        // Validate Uganda phone numbers
+        // Format: 256XXXXXXXXX (12 digits starting with 256)
+        if ( strlen( $phone ) === 9 && substr( $phone, 0, 1 ) === '7' ) {
+            return '256' . $phone; // Convert 0759983853 to 256759983853
+        } elseif ( strlen( $phone ) === 12 && substr( $phone, 0, 3 ) === '256' ) {
+            return $phone; // Already in correct format 256759983853
+        }
+        
         return false;
     }
     

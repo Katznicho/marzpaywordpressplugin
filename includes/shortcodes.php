@@ -47,7 +47,7 @@ class MarzPay_Shortcodes {
             'reference' => '',
             'description' => '',
             'callback_url' => '',
-            'country' => 'UG',
+            'country' => 'UG', // Only Uganda is supported
             'button_text' => 'Request Payment',
             'show_form' => 'true',
             'form_style' => 'default'
@@ -74,7 +74,7 @@ class MarzPay_Shortcodes {
             'reference' => '',
             'description' => '',
             'callback_url' => '',
-            'country' => 'UG',
+            'country' => 'UG', // Only Uganda is supported
             'button_text' => 'Send Money',
             'show_form' => 'true',
             'form_style' => 'default'
