@@ -281,21 +281,34 @@ class MarzPay_Shortcodes {
         
         $result = $api_client->collect_money( $data );
         
+        // Debug: Log the API response structure
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( 'MarzPay API Response: ' . wp_json_encode( $result, JSON_PRETTY_PRINT ) );
+        }
+        
         if ( isset( $result['status'] ) && $result['status'] === 'success' ) {
             // Store transaction in database
             $database = MarzPay_Database::get_instance();
-            $database->insert_transaction( array(
-                'uuid' => $result['data']['transaction']['uuid'],
-                'reference' => $result['data']['transaction']['reference'],
+            
+            // Try to extract data with fallbacks for different response structures
+            $transaction_data = array(
+                'uuid' => $result['data']['transaction']['uuid'] ?? $result['data']['uuid'] ?? uniqid( 'txn_' ),
+                'reference' => $result['data']['transaction']['reference'] ?? $result['data']['reference'] ?? $reference,
                 'type' => 'collection',
-                'status' => $result['data']['transaction']['status'],
+                'status' => $result['data']['transaction']['status'] ?? $result['data']['status'] ?? 'pending',
                 'amount' => $amount,
                 'phone_number' => $validated_phone,
                 'description' => $description,
                 'callback_url' => $callback_url,
-                'provider' => $result['data']['collection']['provider'],
+                'provider' => $result['data']['collection']['provider'] ?? $result['data']['provider'] ?? 'unknown',
                 'metadata' => $result
-            ));
+            );
+            
+            $insert_result = $database->insert_transaction( $transaction_data );
+            
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( 'MarzPay Database Insert Result: ' . ( $insert_result ? 'Success' : 'Failed' ) );
+            }
             
             wp_send_json_success( $result );
         } else {

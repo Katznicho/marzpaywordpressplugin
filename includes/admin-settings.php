@@ -138,6 +138,12 @@ class MarzPay_Admin_Settings {
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
             error_log( 'MarzPay Dashboard Debug - Total transactions: ' . $total_transactions );
             error_log( 'MarzPay Dashboard Debug - Recent transactions count: ' . count( $recent_transactions ) );
+            
+            // Check what's actually in the database
+            global $wpdb;
+            $table = $wpdb->prefix . 'marzpay_transactions';
+            $all_transactions = $wpdb->get_results( "SELECT * FROM $table LIMIT 5" );
+            error_log( 'MarzPay Database Debug - Raw transactions: ' . wp_json_encode( $all_transactions, JSON_PRETTY_PRINT ) );
         }
         
         include MARZPAY_PLUGIN_DIR . 'templates/admin-dashboard.php';
