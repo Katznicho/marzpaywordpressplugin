@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <label for="marzpay_reference"><?php _e( 'Reference', 'marzpay' ); ?></label>
                 <input type="text" id="marzpay_reference" name="reference" 
                        value="<?php echo esc_attr( $atts['reference'] ); ?>" 
-                       placeholder="<?php echo esc_attr( uniqid( 'order_' ) ); ?>" />
+                       placeholder="Optional reference" />
                 <small class="description"><?php _e( 'Optional reference for this transaction', 'marzpay' ); ?></small>
             </div>
             

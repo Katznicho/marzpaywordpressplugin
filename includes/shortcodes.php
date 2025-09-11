@@ -125,8 +125,8 @@ class MarzPay_Shortcodes {
             $data = array(
                 'amount' => (int) $amount,
                 'phone_number' => $phone,
-                'reference' => $reference, // Only use user-provided reference, let API generate if empty
-                'description' => $description,
+                'reference' => $reference ?: wp_generate_uuid4(), // Generate UUID if not provided
+                'description' => $description ?: 'Payment collection request',
                 'country' => 'UG'
             );
             
@@ -144,7 +144,7 @@ class MarzPay_Shortcodes {
                     'status' => $result['data']['transaction']['status'],
                     'amount' => $amount,
                     'phone_number' => $phone,
-                    'description' => $description,
+                    'description' => $description ?: 'Payment collection request',
                     'provider' => $result['data']['collection']['provider'],
                     'metadata' => $result
                 ));
@@ -273,9 +273,9 @@ class MarzPay_Shortcodes {
         $data = array(
             'amount' => $amount,
             'phone_number' => $validated_phone,
-            'reference' => $reference, // Only use user-provided reference, let API generate if empty
-            'description' => $description,
-            'callback_url' => $callback_url,
+            'reference' => $reference ?: wp_generate_uuid4(), // Generate UUID if not provided
+            'description' => $description ?: 'Payment collection request',
+            'callback_url' => $callback_url ?: home_url('/marzpay-callback'),
             'country' => $country
         );
         
@@ -306,8 +306,8 @@ class MarzPay_Shortcodes {
                     'status' => $result['data']['transaction']['status'] ?? $result['data']['status'] ?? 'pending',
                     'amount' => $amount,
                     'phone_number' => $validated_phone,
-                    'description' => $description,
-                    'callback_url' => $callback_url,
+                    'description' => $description ?: 'Payment collection request',
+                    'callback_url' => $callback_url ?: home_url('/marzpay-callback'),
                     'provider' => $result['data']['collection']['provider'] ?? $result['data']['provider'] ?? 'unknown',
                     'metadata' => $result
                 );
@@ -358,9 +358,9 @@ class MarzPay_Shortcodes {
         $data = array(
             'amount' => $amount,
             'phone_number' => $validated_phone,
-            'reference' => $reference, // Only use user-provided reference, let API generate if empty
-            'description' => $description,
-            'callback_url' => $callback_url,
+            'reference' => $reference ?: wp_generate_uuid4(), // Generate UUID if not provided
+            'description' => $description ?: 'Payment collection request',
+            'callback_url' => $callback_url ?: home_url('/marzpay-callback'),
             'country' => $country
         );
         
@@ -380,8 +380,8 @@ class MarzPay_Shortcodes {
                     'status' => $result['data']['transaction']['status'] ?? $result['data']['status'] ?? 'pending',
                     'amount' => $amount,
                     'phone_number' => $validated_phone,
-                    'description' => $description,
-                    'callback_url' => $callback_url,
+                    'description' => $description ?: 'Payment collection request',
+                    'callback_url' => $callback_url ?: home_url('/marzpay-callback'),
                     'provider' => $result['data']['withdrawal']['provider'] ?? $result['data']['provider'] ?? 'unknown',
                     'metadata' => $result
                 ));

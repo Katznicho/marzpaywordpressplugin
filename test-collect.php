@@ -158,6 +158,12 @@ $ajax_url = admin_url('admin-ajax.php');
                 <div class="description">Select the country for the phone number</div>
             </div>
             
+            <div class="form-group">
+                <label for="callback_url">Callback URL</label>
+                <input type="url" id="callback_url" name="callback_url" value="" placeholder="https://yoursite.com/callback">
+                <div class="description">Optional callback URL for payment notifications</div>
+            </div>
+            
             <button type="submit" id="submitBtn">Send Payment Request</button>
         </form>
         
