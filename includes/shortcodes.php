@@ -279,6 +279,11 @@ class MarzPay_Shortcodes {
             'country' => $country
         );
         
+        // Debug: Log the data being sent to API
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( 'MarzPay Collect Money Data: ' . wp_json_encode( $data, JSON_PRETTY_PRINT ) );
+        }
+        
         $result = $api_client->collect_money( $data );
         
         // Debug: Log the API response structure

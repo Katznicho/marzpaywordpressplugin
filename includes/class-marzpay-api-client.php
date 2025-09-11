@@ -54,6 +54,13 @@ class MarzPay_API_Client {
         
         if ( $data && in_array( $method, array( 'POST', 'PUT', 'PATCH' ) ) ) {
             $args['body'] = json_encode( $data );
+            
+            // Debug: Log the request data
+            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                error_log( 'MarzPay API Request - URL: ' . $url );
+                error_log( 'MarzPay API Request - Method: ' . $method );
+                error_log( 'MarzPay API Request - Data: ' . $args['body'] );
+            }
         }
         
         $response = wp_remote_request( $url, $args );
@@ -67,6 +74,12 @@ class MarzPay_API_Client {
         
         $body = wp_remote_retrieve_body( $response );
         $status_code = wp_remote_retrieve_response_code( $response );
+        
+        // Debug: Log the response
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            error_log( 'MarzPay API Response - Status Code: ' . $status_code );
+            error_log( 'MarzPay API Response - Body: ' . $body );
+        }
         
         $decoded_body = json_decode( $body, true );
         
