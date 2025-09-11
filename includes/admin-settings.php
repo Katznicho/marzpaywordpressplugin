@@ -304,10 +304,9 @@ class MarzPay_Admin_Settings {
                 $account_name
             );
             
-            // Add debug information if WP_DEBUG is enabled
-            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                $message .= '<br><small>Debug: Available fields: ' . implode( ', ', array_keys( $account_data ) ) . '</small>';
-            }
+            // Add debug information (temporarily always show for debugging)
+            $message .= '<br><small>Debug: Available fields: ' . implode( ', ', array_keys( $account_data ) ) . '</small>';
+            $message .= '<br><small>Debug: Full response: ' . wp_json_encode( $result, JSON_PRETTY_PRINT ) . '</small>';
             
             wp_send_json_success( array( 'message' => $message ) );
         } else {
