@@ -73,16 +73,29 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                             </td>
                             <td>
                                 <strong><?php echo esc_html( isset( $transaction['reference'] ) ? $transaction['reference'] : 'N/A' ); ?></strong>
-                                <br>
-                                <small class="text-muted"><?php echo esc_html( isset( $transaction['uuid'] ) ? $transaction['uuid'] : 'N/A' ); ?></small>
                             </td>
                             <td>
                                 <?php 
                                 $type = isset( $transaction['type'] ) ? $transaction['type'] : 'collection';
+                                $type_class = '';
+                                switch ( strtolower( $type ) ) {
+                                    case 'credit':
+                                        $type_class = 'type-credit';
+                                        break;
+                                    case 'debit':
+                                        $type_class = 'type-debit';
+                                        break;
+                                    case 'collection':
+                                        $type_class = 'type-collection';
+                                        break;
+                                    default:
+                                        $type_class = 'type-default';
+                                }
+                                
                                 if ( function_exists( 'marzpay_get_transaction_type_label' ) ) {
-                                    echo marzpay_get_transaction_type_label( $type );
+                                    echo '<span class="transaction-type ' . $type_class . '">' . marzpay_get_transaction_type_label( $type ) . '</span>';
                                 } else {
-                                    echo ucfirst( $type );
+                                    echo '<span class="transaction-type ' . $type_class . '">' . ucfirst( $type ) . '</span>';
                                 }
                                 ?>
                             </td>
@@ -104,10 +117,28 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                             <td>
                                 <?php 
                                 $status = isset( $transaction['status'] ) ? $transaction['status'] : 'unknown';
+                                $status_class = '';
+                                switch ( strtolower( $status ) ) {
+                                    case 'completed':
+                                    case 'successful':
+                                        $status_class = 'status-completed';
+                                        break;
+                                    case 'pending':
+                                    case 'processing':
+                                        $status_class = 'status-pending';
+                                        break;
+                                    case 'failed':
+                                    case 'cancelled':
+                                        $status_class = 'status-failed';
+                                        break;
+                                    default:
+                                        $status_class = 'status-unknown';
+                                }
+                                
                                 if ( function_exists( 'marzpay_get_transaction_status_badge' ) ) {
-                                    echo marzpay_get_transaction_status_badge( $status );
+                                    echo '<span class="transaction-status ' . $status_class . '">' . marzpay_get_transaction_status_badge( $status ) . '</span>';
                                 } else {
-                                    echo '<span class="status-' . $status . '">' . ucfirst( $status ) . '</span>';
+                                    echo '<span class="transaction-status ' . $status_class . '">' . ucfirst( $status ) . '</span>';
                                 }
                                 ?>
                             </td>
@@ -309,6 +340,72 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 .marzpay-modal-body {
     padding: 20px;
 }
+
+/* Transaction Type Colors */
+.transaction-type {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.type-credit {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.type-debit {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.type-collection {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.type-default {
+    background: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+}
+
+/* Transaction Status Colors */
+.transaction-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.status-completed {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-pending {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.status-failed {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status-unknown {
+    background: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+}
 </style>
 
 <script>
@@ -324,7 +421,7 @@ jQuery(document).ready(function($) {
         
         // Load transaction details via AJAX
         $.ajax({
-            url: ajaxurl,
+            url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
             type: 'POST',
             data: {
                 action: 'marzpay_get_transaction_details',

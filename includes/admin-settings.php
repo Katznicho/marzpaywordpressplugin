@@ -270,41 +270,66 @@ class MarzPay_Admin_Settings {
      */
     public function ajax_get_transaction_details() {
         check_ajax_referer( 'marzpay_nonce', 'nonce' );
-        
+
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
         }
-        
-        $transaction_id = intval( $_POST['transaction_id'] );
-        if ( ! $transaction_id ) {
-            wp_send_json_error( array( 'message' => 'Invalid transaction ID' ) );
+
+        $transaction_uuid = sanitize_text_field( $_POST['transaction_id'] );
+        if ( ! $transaction_uuid ) {
+            wp_send_json_error( array( 'message' => 'Invalid transaction UUID' ) );
         }
-        
-        $database = MarzPay_Database::get_instance();
-        $transaction = $database->get_transaction_by_id( $transaction_id );
-        
-        if ( ! $transaction ) {
+
+        $api_client = MarzPay_API_Client::get_instance();
+        $result = $api_client->get_transaction( $transaction_uuid );
+
+        if ( ! isset( $result['status'] ) || $result['status'] !== 'success' || ! isset( $result['data']['transaction'] ) ) {
             wp_send_json_error( array( 'message' => 'Transaction not found' ) );
         }
-        
+
+        $transaction = $result['data']['transaction'];
+
         $html = '<div class="transaction-details">';
         $html .= '<table class="widefat">';
         $html .= '<tbody>';
-        $html .= '<tr><td><strong>' . __( 'Reference:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction->reference ) . '</td></tr>';
-        $html .= '<tr><td><strong>' . __( 'UUID:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction->uuid ) . '</td></tr>';
-        $html .= '<tr><td><strong>' . __( 'Type:', 'marzpay' ) . '</strong></td><td>' . marzpay_get_transaction_type_label( $transaction->type ) . '</td></tr>';
-        $html .= '<tr><td><strong>' . __( 'Amount:', 'marzpay' ) . '</strong></td><td>' . marzpay_format_amount( $transaction->amount, $transaction->currency ) . '</td></tr>';
-        $html .= '<tr><td><strong>' . __( 'Status:', 'marzpay' ) . '</strong></td><td>' . marzpay_get_transaction_status_badge( $transaction->status ) . '</td></tr>';
-        $html .= '<tr><td><strong>' . __( 'Phone Number:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction->phone_number ) . '</td></tr>';
-        $html .= '<tr><td><strong>' . __( 'Provider:', 'marzpay' ) . '</strong></td><td>' . marzpay_get_provider_label( $transaction->provider ) . '</td></tr>';
-        $html .= '<tr><td><strong>' . __( 'Description:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction->description ?: __( 'No description', 'marzpay' ) ) . '</td></tr>';
-        $html .= '<tr><td><strong>' . __( 'Callback URL:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction->callback_url ?: __( 'No callback URL', 'marzpay' ) ) . '</td></tr>';
-        $html .= '<tr><td><strong>' . __( 'Created:', 'marzpay' ) . '</strong></td><td>' . date( 'M j, Y H:i:s', strtotime( $transaction->created_at ) ) . '</td></tr>';
-        $html .= '<tr><td><strong>' . __( 'Updated:', 'marzpay' ) . '</strong></td><td>' . date( 'M j, Y H:i:s', strtotime( $transaction->updated_at ) ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Reference:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction['reference'] ?? 'N/A' ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'UUID:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction['uuid'] ?? 'N/A' ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Type:', 'marzpay' ) . '</strong></td><td>' . ( function_exists( 'marzpay_get_transaction_type_label' ) ? marzpay_get_transaction_type_label( $transaction['type'] ?? 'collection' ) : ucfirst( $transaction['type'] ?? 'collection' ) ) . '</td></tr>';
+        
+        // Handle amount formatting
+        $amount_display = 'N/A';
+        if ( isset( $transaction['amount'] ) ) {
+            if ( is_array( $transaction['amount'] ) && isset( $transaction['amount']['formatted'] ) ) {
+                $amount_display = $transaction['amount']['formatted'] . ' ' . ( $transaction['amount']['currency'] ?? 'UGX' );
+            } elseif ( function_exists( 'marzpay_format_amount' ) ) {
+                $amount_display = marzpay_format_amount( $transaction['amount'], $transaction['currency'] ?? 'UGX' );
+            } else {
+                $amount_display = number_format( is_array( $transaction['amount'] ) ? ( $transaction['amount']['raw'] ?? 0 ) : $transaction['amount'] ) . ' ' . ( $transaction['currency'] ?? 'UGX' );
+            }
+        }
+        $html .= '<tr><td><strong>' . __( 'Amount:', 'marzpay' ) . '</strong></td><td>' . $amount_display . '</td></tr>';
+        
+        $html .= '<tr><td><strong>' . __( 'Status:', 'marzpay' ) . '</strong></td><td>' . ( function_exists( 'marzpay_get_transaction_status_badge' ) ? marzpay_get_transaction_status_badge( $transaction['status'] ?? 'unknown' ) : ucfirst( $transaction['status'] ?? 'unknown' ) ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Phone Number:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction['phone_number'] ?? 'N/A' ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Provider:', 'marzpay' ) . '</strong></td><td>' . ( function_exists( 'marzpay_get_provider_label' ) ? marzpay_get_provider_label( $transaction['provider'] ?? 'unknown' ) : ucfirst( $transaction['provider'] ?? 'unknown' ) ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Description:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction['description'] ?? __( 'No description', 'marzpay' ) ) . '</td></tr>';
+        
+        // Handle timeline dates
+        $created_date = 'N/A';
+        $updated_date = 'N/A';
+        if ( isset( $transaction['timeline']['created_at'] ) ) {
+            $created_date = date( 'M j, Y H:i:s', strtotime( $transaction['timeline']['created_at'] ) );
+        }
+        if ( isset( $transaction['timeline']['updated_at'] ) ) {
+            $updated_date = date( 'M j, Y H:i:s', strtotime( $transaction['timeline']['updated_at'] ) );
+        }
+        
+        $html .= '<tr><td><strong>' . __( 'Created:', 'marzpay' ) . '</strong></td><td>' . $created_date . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Updated:', 'marzpay' ) . '</strong></td><td>' . $updated_date . '</td></tr>';
         $html .= '</tbody>';
         $html .= '</table>';
         $html .= '</div>';
-        
+
         wp_send_json_success( array( 'html' => $html ) );
     }
     
