@@ -317,6 +317,24 @@ class MarzPay_Database {
     }
     
     /**
+     * Get transaction by ID
+     */
+    public function get_transaction_by_id( $id ) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'marzpay_transactions';
+        
+        $sql = $wpdb->prepare( "SELECT * FROM $table WHERE id = %d", $id );
+        $transaction = $wpdb->get_row( $sql );
+        
+        if ( $transaction && isset( $transaction->metadata ) ) {
+            $transaction->metadata = json_decode( $transaction->metadata, true );
+        }
+        
+        return $transaction;
+    }
+    
+    /**
      * Insert webhook
      */
     public function insert_webhook( $data ) {

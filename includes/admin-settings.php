@@ -22,6 +22,7 @@ class MarzPay_Admin_Settings {
         add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+        add_action( 'wp_ajax_marzpay_get_transaction_details', array( $this, 'ajax_get_transaction_details' ) );
     }
     
     /**
@@ -216,6 +217,49 @@ class MarzPay_Admin_Settings {
      */
     public function general_section_callback() {
         echo '<p>' . __( 'Configure general plugin settings.', 'marzpay' ) . '</p>';
+    }
+    
+    /**
+     * AJAX handler for getting transaction details
+     */
+    public function ajax_get_transaction_details() {
+        check_ajax_referer( 'marzpay_nonce', 'nonce' );
+        
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+        }
+        
+        $transaction_id = intval( $_POST['transaction_id'] );
+        if ( ! $transaction_id ) {
+            wp_send_json_error( array( 'message' => 'Invalid transaction ID' ) );
+        }
+        
+        $database = MarzPay_Database::get_instance();
+        $transaction = $database->get_transaction_by_id( $transaction_id );
+        
+        if ( ! $transaction ) {
+            wp_send_json_error( array( 'message' => 'Transaction not found' ) );
+        }
+        
+        $html = '<div class="transaction-details">';
+        $html .= '<table class="widefat">';
+        $html .= '<tbody>';
+        $html .= '<tr><td><strong>' . __( 'Reference:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction->reference ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'UUID:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction->uuid ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Type:', 'marzpay' ) . '</strong></td><td>' . marzpay_get_transaction_type_label( $transaction->type ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Amount:', 'marzpay' ) . '</strong></td><td>' . marzpay_format_amount( $transaction->amount, $transaction->currency ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Status:', 'marzpay' ) . '</strong></td><td>' . marzpay_get_transaction_status_badge( $transaction->status ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Phone Number:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction->phone_number ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Provider:', 'marzpay' ) . '</strong></td><td>' . marzpay_get_provider_label( $transaction->provider ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Description:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction->description ?: __( 'No description', 'marzpay' ) ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Callback URL:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction->callback_url ?: __( 'No callback URL', 'marzpay' ) ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Created:', 'marzpay' ) . '</strong></td><td>' . date( 'M j, Y H:i:s', strtotime( $transaction->created_at ) ) . '</td></tr>';
+        $html .= '<tr><td><strong>' . __( 'Updated:', 'marzpay' ) . '</strong></td><td>' . date( 'M j, Y H:i:s', strtotime( $transaction->updated_at ) ) . '</td></tr>';
+        $html .= '</tbody>';
+        $html .= '</table>';
+        $html .= '</div>';
+        
+        wp_send_json_success( array( 'html' => $html ) );
     }
 }
 
