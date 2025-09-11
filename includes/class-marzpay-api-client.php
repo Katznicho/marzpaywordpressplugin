@@ -254,17 +254,17 @@ class MarzPay_API_Client {
         // Remove all non-numeric characters except +
         $phone = preg_replace( '/[^0-9+]/', '', $phone );
         
-        // Handle international format with +
-        if ( strpos( $phone, '+' ) === 0 ) {
-            $phone = substr( $phone, 1 ); // Remove the +
-        }
-        
         // Validate Uganda phone numbers
-        // Format: 256XXXXXXXXX (12 digits starting with 256)
-        if ( strlen( $phone ) === 9 && substr( $phone, 0, 1 ) === '7' ) {
-            return '256' . $phone; // Convert 0759983853 to 256759983853
+        // API expects format: +256XXXXXXXXX (with + sign)
+        if ( strlen( $phone ) === 10 && substr( $phone, 0, 1 ) === '0' ) {
+            // Convert 0759983853 to +256759983853
+            return '+256' . substr( $phone, 1 );
+        } elseif ( strlen( $phone ) === 13 && substr( $phone, 0, 4 ) === '+256' ) {
+            // Already in correct format +256759983853
+            return $phone;
         } elseif ( strlen( $phone ) === 12 && substr( $phone, 0, 3 ) === '256' ) {
-            return $phone; // Already in correct format 256759983853
+            // Convert 256759983853 to +256759983853
+            return '+' . $phone;
         }
         
         return false;
