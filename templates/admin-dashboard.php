@@ -82,24 +82,32 @@ if ( ! defined( 'ABSPATH' ) ) exit;
         <!-- Transaction Statistics -->
         <div class="marzpay-dashboard-section">
             <h2><?php _e( 'Transaction Statistics', 'marzpay' ); ?></h2>
-            <div class="marzpay-stats-grid">
-                <div class="stat-card">
-                    <h3><?php echo number_format( $total_transactions ); ?></h3>
-                    <p><?php _e( 'Total Transactions', 'marzpay' ); ?></p>
+            <?php if ( $total_transactions > 0 ) : ?>
+                <div class="marzpay-stats-grid">
+                    <div class="stat-card">
+                        <h3><?php echo number_format( $total_transactions ); ?></h3>
+                        <p><?php _e( 'Total Transactions', 'marzpay' ); ?></p>
+                    </div>
+                    <div class="stat-card success">
+                        <h3><?php echo number_format( $successful_transactions ); ?></h3>
+                        <p><?php _e( 'Successful', 'marzpay' ); ?></p>
+                    </div>
+                    <div class="stat-card warning">
+                        <h3><?php echo number_format( $pending_transactions ); ?></h3>
+                        <p><?php _e( 'Pending', 'marzpay' ); ?></p>
+                    </div>
+                    <div class="stat-card error">
+                        <h3><?php echo number_format( $failed_transactions ); ?></h3>
+                        <p><?php _e( 'Failed', 'marzpay' ); ?></p>
+                    </div>
                 </div>
-                <div class="stat-card success">
-                    <h3><?php echo number_format( $successful_transactions ); ?></h3>
-                    <p><?php _e( 'Successful', 'marzpay' ); ?></p>
+            <?php else : ?>
+                <div style="text-align: center; padding: 40px; color: #646970;">
+                    <div style="font-size: 3em; margin-bottom: 15px; opacity: 0.3;">📊</div>
+                    <p style="font-size: 1.2em; margin: 0 0 10px 0; font-weight: 600;"><?php _e( 'No Transactions Yet', 'marzpay' ); ?></p>
+                    <p style="margin: 0;"><?php _e( 'Transaction statistics will appear here once you start processing payments.', 'marzpay' ); ?></p>
                 </div>
-                <div class="stat-card warning">
-                    <h3><?php echo number_format( $pending_transactions ); ?></h3>
-                    <p><?php _e( 'Pending', 'marzpay' ); ?></p>
-                </div>
-                <div class="stat-card error">
-                    <h3><?php echo number_format( $failed_transactions ); ?></h3>
-                    <p><?php _e( 'Failed', 'marzpay' ); ?></p>
-                </div>
-            </div>
+            <?php endif; ?>
         </div>
 
         <!-- Recent Transactions -->
