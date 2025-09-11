@@ -287,27 +287,36 @@ class MarzPay_Shortcodes {
         }
         
         if ( isset( $result['status'] ) && $result['status'] === 'success' ) {
-            // Store transaction in database
-            $database = MarzPay_Database::get_instance();
+            // Only store transaction if API returned a proper UUID
+            $api_uuid = $result['data']['transaction']['uuid'] ?? $result['data']['uuid'] ?? null;
             
-            // Try to extract data with fallbacks for different response structures
-            $transaction_data = array(
-                'uuid' => $result['data']['transaction']['uuid'] ?? $result['data']['uuid'] ?? uniqid( 'txn_' ),
-                'reference' => $result['data']['transaction']['reference'] ?? $result['data']['reference'] ?? $reference,
-                'type' => 'collection',
-                'status' => $result['data']['transaction']['status'] ?? $result['data']['status'] ?? 'pending',
-                'amount' => $amount,
-                'phone_number' => $validated_phone,
-                'description' => $description,
-                'callback_url' => $callback_url,
-                'provider' => $result['data']['collection']['provider'] ?? $result['data']['provider'] ?? 'unknown',
-                'metadata' => $result
-            );
-            
-            $insert_result = $database->insert_transaction( $transaction_data );
-            
-            if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-                error_log( 'MarzPay Database Insert Result: ' . ( $insert_result ? 'Success' : 'Failed' ) );
+            if ( $api_uuid ) {
+                // Store transaction in database with API-generated UUID
+                $database = MarzPay_Database::get_instance();
+                
+                $transaction_data = array(
+                    'uuid' => $api_uuid,
+                    'reference' => $result['data']['transaction']['reference'] ?? $result['data']['reference'] ?? $reference,
+                    'type' => 'collection',
+                    'status' => $result['data']['transaction']['status'] ?? $result['data']['status'] ?? 'pending',
+                    'amount' => $amount,
+                    'phone_number' => $validated_phone,
+                    'description' => $description,
+                    'callback_url' => $callback_url,
+                    'provider' => $result['data']['collection']['provider'] ?? $result['data']['provider'] ?? 'unknown',
+                    'metadata' => $result
+                );
+                
+                $insert_result = $database->insert_transaction( $transaction_data );
+                
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                    error_log( 'MarzPay Database Insert Result: ' . ( $insert_result ? 'Success' : 'Failed' ) );
+                }
+            } else {
+                // Log warning if API didn't return UUID
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                    error_log( 'MarzPay Warning: API response missing UUID, transaction not stored locally' );
+                }
             }
             
             wp_send_json_success( $result );
@@ -353,20 +362,30 @@ class MarzPay_Shortcodes {
         $result = $api_client->send_money( $data );
         
         if ( isset( $result['status'] ) && $result['status'] === 'success' ) {
-            // Store transaction in database
-            $database = MarzPay_Database::get_instance();
-            $database->insert_transaction( array(
-                'uuid' => $result['data']['transaction']['uuid'],
-                'reference' => $result['data']['transaction']['reference'],
-                'type' => 'withdrawal',
-                'status' => $result['data']['transaction']['status'],
-                'amount' => $amount,
-                'phone_number' => $validated_phone,
-                'description' => $description,
-                'callback_url' => $callback_url,
-                'provider' => $result['data']['withdrawal']['provider'],
-                'metadata' => $result
-            ));
+            // Only store transaction if API returned a proper UUID
+            $api_uuid = $result['data']['transaction']['uuid'] ?? $result['data']['uuid'] ?? null;
+            
+            if ( $api_uuid ) {
+                // Store transaction in database with API-generated UUID
+                $database = MarzPay_Database::get_instance();
+                $database->insert_transaction( array(
+                    'uuid' => $api_uuid,
+                    'reference' => $result['data']['transaction']['reference'] ?? $result['data']['reference'] ?? $reference,
+                    'type' => 'withdrawal',
+                    'status' => $result['data']['transaction']['status'] ?? $result['data']['status'] ?? 'pending',
+                    'amount' => $amount,
+                    'phone_number' => $validated_phone,
+                    'description' => $description,
+                    'callback_url' => $callback_url,
+                    'provider' => $result['data']['withdrawal']['provider'] ?? $result['data']['provider'] ?? 'unknown',
+                    'metadata' => $result
+                ));
+            } else {
+                // Log warning if API didn't return UUID
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                    error_log( 'MarzPay Warning: Send money API response missing UUID, transaction not stored locally' );
+                }
+            }
             
             wp_send_json_success( $result );
         } else {
