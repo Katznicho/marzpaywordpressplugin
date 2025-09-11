@@ -162,13 +162,6 @@ class MarzPay_Admin_Settings {
         // Get recent transactions (first 10)
         $recent_transactions = array_slice( $transactions, 0, 10 );
         
-        // Debug information (temporarily)
-        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            error_log( 'MarzPay Dashboard Debug - API Response: ' . wp_json_encode( $api_transactions, JSON_PRETTY_PRINT ) );
-            error_log( 'MarzPay Dashboard Debug - Total transactions from API: ' . $total_transactions );
-            error_log( 'MarzPay Dashboard Debug - Recent transactions count: ' . count( $recent_transactions ) );
-            error_log( 'MarzPay Dashboard Debug - Successful: ' . $successful_transactions . ', Pending: ' . $pending_transactions . ', Failed: ' . $failed_transactions );
-        }
         
         include MARZPAY_PLUGIN_DIR . 'templates/admin-dashboard.php';
     }
@@ -314,18 +307,6 @@ class MarzPay_Admin_Settings {
         $html .= '<tr><td><strong>' . __( 'Provider:', 'marzpay' ) . '</strong></td><td>' . ( function_exists( 'marzpay_get_provider_label' ) ? marzpay_get_provider_label( $transaction['provider'] ?? 'unknown' ) : ucfirst( $transaction['provider'] ?? 'unknown' ) ) . '</td></tr>';
         $html .= '<tr><td><strong>' . __( 'Description:', 'marzpay' ) . '</strong></td><td>' . esc_html( $transaction['description'] ?? __( 'No description', 'marzpay' ) ) . '</td></tr>';
         
-        // Handle timeline dates
-        $created_date = 'N/A';
-        $updated_date = 'N/A';
-        if ( isset( $transaction['timeline']['created_at'] ) ) {
-            $created_date = date( 'M j, Y H:i:s', strtotime( $transaction['timeline']['created_at'] ) );
-        }
-        if ( isset( $transaction['timeline']['updated_at'] ) ) {
-            $updated_date = date( 'M j, Y H:i:s', strtotime( $transaction['timeline']['updated_at'] ) );
-        }
-        
-        $html .= '<tr><td><strong>' . __( 'Created:', 'marzpay' ) . '</strong></td><td>' . $created_date . '</td></tr>';
-        $html .= '<tr><td><strong>' . __( 'Updated:', 'marzpay' ) . '</strong></td><td>' . $updated_date . '</td></tr>';
         $html .= '</tbody>';
         $html .= '</table>';
         $html .= '</div>';

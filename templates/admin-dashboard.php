@@ -127,17 +127,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <div class="marzpay-dashboard-section">
                     <h2><?php _e( 'Recent Transactions', 'marzpay' ); ?></h2>
                     
-                    <!-- Temporary Debug Info -->
-                    <?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) : ?>
-                        <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 4px; font-family: monospace; font-size: 12px;">
-                            <strong>Debug Info:</strong><br>
-                            Recent transactions count: <?php echo count( $recent_transactions ); ?><br>
-                            <?php if ( ! empty( $recent_transactions ) ) : ?>
-                                First transaction structure:<br>
-                                <pre><?php echo esc_html( print_r( $recent_transactions[0], true ) ); ?></pre>
-                            <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
                     
                     <?php if ( ! empty( $recent_transactions ) ) : ?>
                 <div class="marzpay-recent-transactions">
