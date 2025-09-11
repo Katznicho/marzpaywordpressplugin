@@ -3,8 +3,15 @@
 ## 📦 Installation from Zip File
 
 ### Step 1: Download the Plugin
-- Download `marzpay-collections.zip` from the repository
-- The zip file is ready for WordPress installation
+**Option A: Direct Download from GitHub**
+- Click this link: [Download MarzPay Plugin](https://github.com/Katznicho/marzpaywordpressplugin/archive/refs/heads/main.zip)
+- The zip file will download automatically
+- Extract the zip file and rename the folder to `marzpay-collections`
+
+**Option B: Clone from GitHub**
+- Go to: https://github.com/Katznicho/marzpaywordpressplugin
+- Click the green "Code" button
+- Click "Download ZIP"
 
 ### Step 2: Install in WordPress
 1. **Login to WordPress Admin**
