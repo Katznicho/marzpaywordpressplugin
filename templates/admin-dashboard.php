@@ -123,10 +123,23 @@ if ( ! defined( 'ABSPATH' ) ) exit;
             <?php endif; ?>
         </div>
 
-        <!-- Recent Transactions -->
-        <div class="marzpay-dashboard-section">
-            <h2><?php _e( 'Recent Transactions', 'marzpay' ); ?></h2>
-            <?php if ( ! empty( $recent_transactions ) ) : ?>
+                <!-- Recent Transactions -->
+                <div class="marzpay-dashboard-section">
+                    <h2><?php _e( 'Recent Transactions', 'marzpay' ); ?></h2>
+                    
+                    <!-- Temporary Debug Info -->
+                    <?php if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) : ?>
+                        <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 4px; font-family: monospace; font-size: 12px;">
+                            <strong>Debug Info:</strong><br>
+                            Recent transactions count: <?php echo count( $recent_transactions ); ?><br>
+                            <?php if ( ! empty( $recent_transactions ) ) : ?>
+                                First transaction structure:<br>
+                                <pre><?php echo esc_html( print_r( $recent_transactions[0], true ) ); ?></pre>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if ( ! empty( $recent_transactions ) ) : ?>
                 <div class="marzpay-recent-transactions">
                     <table class="widefat fixed striped">
                         <thead>
@@ -143,22 +156,47 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                             <?php foreach ( $recent_transactions as $transaction ) : ?>
                                 <tr>
                                     <td>
-                                        <strong><?php echo esc_html( $transaction['reference'] ?? 'N/A' ); ?></strong>
+                                        <strong><?php echo esc_html( isset( $transaction['reference'] ) ? $transaction['reference'] : 'N/A' ); ?></strong>
                                     </td>
                                     <td>
                                         <span class="transaction-type">
-                                            <?php echo marzpay_get_transaction_type_label( $transaction['type'] ?? 'collection' ); ?>
+                                            <?php 
+                                            $type = isset( $transaction['type'] ) ? $transaction['type'] : 'collection';
+                                            if ( function_exists( 'marzpay_get_transaction_type_label' ) ) {
+                                                echo marzpay_get_transaction_type_label( $type );
+                                            } else {
+                                                echo ucfirst( $type );
+                                            }
+                                            ?>
                                         </span>
                                     </td>
                                     <td>
-                                        <strong><?php echo marzpay_format_amount( $transaction['amount'] ?? 0, $transaction['currency'] ?? 'UGX' ); ?></strong>
+                                        <strong><?php 
+                                        $amount = isset( $transaction['amount'] ) ? $transaction['amount'] : 0;
+                                        $currency = isset( $transaction['currency'] ) ? $transaction['currency'] : 'UGX';
+                                        if ( function_exists( 'marzpay_format_amount' ) ) {
+                                            echo marzpay_format_amount( $amount, $currency );
+                                        } else {
+                                            echo number_format( $amount ) . ' ' . $currency;
+                                        }
+                                        ?></strong>
                                     </td>
-                                    <td><?php echo marzpay_get_transaction_status_badge( $transaction['status'] ?? 'unknown' ); ?></td>
-                                    <td><?php echo esc_html( $transaction['phone_number'] ?? 'N/A' ); ?></td>
+                                    <td><?php 
+                                    $status = isset( $transaction['status'] ) ? $transaction['status'] : 'unknown';
+                                    if ( function_exists( 'marzpay_get_transaction_status_badge' ) ) {
+                                        echo marzpay_get_transaction_status_badge( $status );
+                                    } else {
+                                        echo '<span class="status-' . $status . '">' . ucfirst( $status ) . '</span>';
+                                    }
+                                    ?></td>
+                                    <td><?php echo esc_html( isset( $transaction['phone_number'] ) ? $transaction['phone_number'] : 'N/A' ); ?></td>
                                     <td>
-                                        <?php echo date( 'M j, Y', strtotime( $transaction['created_at'] ?? 'now' ) ); ?>
+                                        <?php 
+                                        $date = isset( $transaction['created_at'] ) ? $transaction['created_at'] : date( 'Y-m-d H:i:s' );
+                                        echo date( 'M j, Y', strtotime( $date ) ); 
+                                        ?>
                                         <br>
-                                        <small style="color: #646970;"><?php echo date( 'H:i', strtotime( $transaction['created_at'] ?? 'now' ) ); ?></small>
+                                        <small style="color: #646970;"><?php echo date( 'H:i', strtotime( $date ) ); ?></small>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
