@@ -125,60 +125,49 @@ class MarzPay_Admin_Settings {
         $account = $api_client->get_account();
         $balance = $api_client->get_balance();
         
-        // Get transaction stats
-        $total_transactions = $database->get_transaction_count();
-        $successful_transactions = $database->get_transaction_count( array( 'status' => 'successful' ) );
-        $pending_transactions = $database->get_transaction_count( array( 'status' => 'pending' ) );
-        $failed_transactions = $database->get_transaction_count( array( 'status' => 'failed' ) );
+        // Get transactions from API instead of database
+        $api_transactions = $api_client->get_transactions( array( 'limit' => 50 ) );
         
-        // Get recent transactions
-        $recent_transactions = $database->get_transactions( array( 'limit' => 10 ) );
+        // Process API response
+        $transactions = array();
+        $total_transactions = 0;
+        $successful_transactions = 0;
+        $pending_transactions = 0;
+        $failed_transactions = 0;
+        
+        if ( isset( $api_transactions['status'] ) && $api_transactions['status'] === 'success' && isset( $api_transactions['data']['transactions'] ) ) {
+            $transactions = $api_transactions['data']['transactions'];
+            $total_transactions = count( $transactions );
+            
+            // Count by status
+            foreach ( $transactions as $transaction ) {
+                $status = $transaction['status'] ?? 'unknown';
+                switch ( $status ) {
+                    case 'successful':
+                    case 'completed':
+                        $successful_transactions++;
+                        break;
+                    case 'pending':
+                    case 'processing':
+                        $pending_transactions++;
+                        break;
+                    case 'failed':
+                    case 'cancelled':
+                        $failed_transactions++;
+                        break;
+                }
+            }
+        }
+
+        // Get recent transactions (first 10)
+        $recent_transactions = array_slice( $transactions, 0, 10 );
         
         // Debug information (temporarily)
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            error_log( 'MarzPay Dashboard Debug - Total transactions: ' . $total_transactions );
+            error_log( 'MarzPay Dashboard Debug - API Response: ' . wp_json_encode( $api_transactions, JSON_PRETTY_PRINT ) );
+            error_log( 'MarzPay Dashboard Debug - Total transactions from API: ' . $total_transactions );
             error_log( 'MarzPay Dashboard Debug - Recent transactions count: ' . count( $recent_transactions ) );
-            
-            // Check what's actually in the database
-            global $wpdb;
-            $table = $wpdb->prefix . 'marzpay_transactions';
-            
-            // Check if table exists
-            $table_exists = $wpdb->get_var( "SHOW TABLES LIKE '$table'" );
-            error_log( 'MarzPay Database Debug - Table exists: ' . ( $table_exists ? 'Yes' : 'No' ) );
-            
-            if ( $table_exists ) {
-                $all_transactions = $wpdb->get_results( "SELECT * FROM $table LIMIT 5" );
-                error_log( 'MarzPay Database Debug - Raw transactions count: ' . count( $all_transactions ) );
-                error_log( 'MarzPay Database Debug - Raw transactions: ' . wp_json_encode( $all_transactions, JSON_PRETTY_PRINT ) );
-                
-                // Check table structure
-                $table_structure = $wpdb->get_results( "DESCRIBE $table" );
-                error_log( 'MarzPay Database Debug - Table structure: ' . wp_json_encode( $table_structure, JSON_PRETTY_PRINT ) );
-                
-                // Test insert a sample transaction if none exist
-                if ( count( $all_transactions ) === 0 ) {
-                    error_log( 'MarzPay Database Debug - No transactions found, testing insert...' );
-                    $test_data = array(
-                        'uuid' => 'test-uuid-' . time(),
-                        'reference' => 'TEST-' . time(),
-                        'type' => 'collection',
-                        'status' => 'successful',
-                        'amount' => 1000.00,
-                        'currency' => 'UGX',
-                        'phone_number' => '+256700000000',
-                        'description' => 'Test transaction for debugging',
-                        'provider' => 'mtn',
-                        'metadata' => json_encode( array( 'test' => true ) )
-                    );
-                    
-                    $insert_result = $wpdb->insert( $table, $test_data );
-                    error_log( 'MarzPay Database Debug - Test insert result: ' . ( $insert_result ? 'Success' : 'Failed' ) );
-                    if ( $insert_result === false ) {
-                        error_log( 'MarzPay Database Debug - Insert error: ' . $wpdb->last_error );
-                    }
-                }
-            }
+            error_log( 'MarzPay Dashboard Debug - Successful: ' . $successful_transactions . ', Pending: ' . $pending_transactions . ', Failed: ' . $failed_transactions );
         }
         
         include MARZPAY_PLUGIN_DIR . 'templates/admin-dashboard.php';
@@ -188,7 +177,7 @@ class MarzPay_Admin_Settings {
      * Transactions page
      */
     public function transactions_page() {
-        $database = MarzPay_Database::get_instance();
+        $api_client = MarzPay_API_Client::get_instance();
         
         // Handle filters
         $filters = array();
@@ -210,8 +199,17 @@ class MarzPay_Admin_Settings {
         $filters['limit'] = $per_page;
         $filters['offset'] = $offset;
         
-        $transactions = $database->get_transactions( $filters );
-        $total_transactions = $database->get_transaction_count( $filters );
+        // Get transactions from API
+        $api_response = $api_client->get_transactions( $filters );
+        
+        $transactions = array();
+        $total_transactions = 0;
+        
+        if ( isset( $api_response['status'] ) && $api_response['status'] === 'success' && isset( $api_response['data']['transactions'] ) ) {
+            $transactions = $api_response['data']['transactions'];
+            $total_transactions = count( $transactions );
+        }
+        
         $total_pages = ceil( $total_transactions / $per_page );
         
         include MARZPAY_PLUGIN_DIR . 'templates/admin-transactions.php';

@@ -143,22 +143,22 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                             <?php foreach ( $recent_transactions as $transaction ) : ?>
                                 <tr>
                                     <td>
-                                        <strong><?php echo esc_html( $transaction->reference ); ?></strong>
+                                        <strong><?php echo esc_html( $transaction['reference'] ?? 'N/A' ); ?></strong>
                                     </td>
                                     <td>
                                         <span class="transaction-type">
-                                            <?php echo marzpay_get_transaction_type_label( $transaction->type ); ?>
+                                            <?php echo marzpay_get_transaction_type_label( $transaction['type'] ?? 'collection' ); ?>
                                         </span>
                                     </td>
                                     <td>
-                                        <strong><?php echo marzpay_format_amount( $transaction->amount, $transaction->currency ); ?></strong>
+                                        <strong><?php echo marzpay_format_amount( $transaction['amount'] ?? 0, $transaction['currency'] ?? 'UGX' ); ?></strong>
                                     </td>
-                                    <td><?php echo marzpay_get_transaction_status_badge( $transaction->status ); ?></td>
-                                    <td><?php echo esc_html( $transaction->phone_number ); ?></td>
+                                    <td><?php echo marzpay_get_transaction_status_badge( $transaction['status'] ?? 'unknown' ); ?></td>
+                                    <td><?php echo esc_html( $transaction['phone_number'] ?? 'N/A' ); ?></td>
                                     <td>
-                                        <?php echo date( 'M j, Y', strtotime( $transaction->created_at ) ); ?>
+                                        <?php echo date( 'M j, Y', strtotime( $transaction['created_at'] ?? 'now' ) ); ?>
                                         <br>
-                                        <small style="color: #646970;"><?php echo date( 'H:i', strtotime( $transaction->created_at ) ); ?></small>
+                                        <small style="color: #646970;"><?php echo date( 'H:i', strtotime( $transaction['created_at'] ?? 'now' ) ); ?></small>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
