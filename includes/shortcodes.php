@@ -255,7 +255,7 @@ class MarzPay_Shortcodes {
         $phone = sanitize_text_field( $_POST['phone'] );
         $reference = sanitize_text_field( $_POST['reference'] );
         $description = sanitize_text_field( $_POST['description'] );
-        $callback_url = esc_url_raw( $_POST['callback_url'] );
+        $callback_url = isset( $_POST['callback_url'] ) ? esc_url_raw( $_POST['callback_url'] ) : '';
         $country = sanitize_text_field( $_POST['country'] );
         
         $api_client = MarzPay_API_Client::get_instance();
@@ -335,7 +335,7 @@ class MarzPay_Shortcodes {
         $phone = sanitize_text_field( $_POST['phone'] );
         $reference = sanitize_text_field( $_POST['reference'] );
         $description = sanitize_text_field( $_POST['description'] );
-        $callback_url = esc_url_raw( $_POST['callback_url'] );
+        $callback_url = isset( $_POST['callback_url'] ) ? esc_url_raw( $_POST['callback_url'] ) : '';
         $country = sanitize_text_field( $_POST['country'] );
         
         $api_client = MarzPay_API_Client::get_instance();

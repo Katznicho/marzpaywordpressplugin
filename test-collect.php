@@ -1,22 +1,45 @@
+<?php
+/**
+ * Test page for MarzPay Collect Money functionality
+ * This is a WordPress-compatible test page
+ */
+
+// Load WordPress
+require_once('../../../wp-load.php');
+
+// Check if user is logged in and has proper permissions
+if (!is_user_logged_in() || !current_user_can('manage_options')) {
+    wp_die('You must be logged in as an administrator to access this test page.');
+}
+
+// Get the nonce for AJAX requests
+$nonce = wp_create_nonce('marzpay_nonce');
+$ajax_url = admin_url('admin-ajax.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test MarzPay Collect Money</title>
+    <title>MarzPay Collect Money Test</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             max-width: 600px;
-            margin: 50px auto;
+            margin: 40px auto;
             padding: 20px;
-            background: #f5f5f5;
+            background: #f1f1f1;
         }
-        .form-container {
+        .container {
             background: white;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
         }
         .form-group {
             margin-bottom: 20px;
@@ -24,26 +47,37 @@
         label {
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
+            font-weight: 600;
             color: #333;
         }
         input, textarea, select {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
             font-size: 16px;
             box-sizing: border-box;
         }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #0073aa;
+        }
+        .description {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
         button {
+            width: 100%;
+            padding: 15px;
             background: #0073aa;
             color: white;
-            padding: 15px 30px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            width: 100%;
+            transition: background 0.3s;
         }
         button:hover {
             background: #005a87;
@@ -55,41 +89,45 @@
         .result {
             margin-top: 20px;
             padding: 15px;
-            border-radius: 4px;
+            border-radius: 6px;
             display: none;
         }
-        .success {
+        .result.success {
             background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
-        .error {
+        .result.error {
             background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
-        .loading {
+        .result.loading {
             background: #d1ecf1;
             color: #0c5460;
             border: 1px solid #bee5eb;
         }
-        .description {
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
             font-size: 12px;
-            color: #666;
-            margin-top: 5px;
+            white-space: pre-wrap;
         }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <h1>Test MarzPay Collect Money</h1>
-        <p>This form tests the MarzPay collect money functionality.</p>
+    <div class="container">
+        <h1>🧪 MarzPay Collect Money Test</h1>
         
-        <form id="collect-form">
+        <form id="collectForm">
             <div class="form-group">
                 <label for="amount">Amount (UGX) *</label>
-                <input type="number" id="amount" name="amount" value="1000" min="500" max="10000000" required>
-                <div class="description">Minimum: 500 UGX, Maximum: 10,000,000 UGX</div>
+                <input type="number" id="amount" name="amount" value="1000" min="100" required>
+                <div class="description">Minimum: 100 UGX</div>
             </div>
             
             <div class="form-group">
@@ -111,29 +149,26 @@
             </div>
             
             <div class="form-group">
-                <label for="callback_url">Callback URL</label>
-                <input type="url" id="callback_url" name="callback_url" placeholder="https://yoursite.com/callback">
-                <div class="description">Optional callback URL for payment notifications</div>
-            </div>
-            
-            <div class="form-group">
                 <label for="country">Country</label>
                 <select id="country" name="country">
-                    <option value="UG" selected>Uganda</option>
+                    <option value="UG">Uganda</option>
+                    <option value="KE">Kenya</option>
+                    <option value="TZ">Tanzania</option>
                 </select>
+                <div class="description">Select the country for the phone number</div>
             </div>
             
-            <button type="submit" id="submit-btn">Request Payment</button>
+            <button type="submit" id="submitBtn">Send Payment Request</button>
         </form>
         
         <div id="result" class="result"></div>
     </div>
 
     <script>
-        document.getElementById('collect-form').addEventListener('submit', function(e) {
+        document.getElementById('collectForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const submitBtn = document.getElementById('submit-btn');
+            const submitBtn = document.getElementById('submitBtn');
             const resultDiv = document.getElementById('result');
             
             // Show loading state
@@ -146,43 +181,62 @@
             // Get form data
             const formData = new FormData(this);
             formData.append('action', 'marzpay_collect_money');
-            formData.append('nonce', 'test_nonce_12345');
+            formData.append('nonce', '<?php echo $nonce; ?>');
             
             // Send AJAX request
-            fetch('/wordpress/wp-admin/admin-ajax.php', {
+            fetch('<?php echo $ajax_url; ?>', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    return response.text().then(text => {
+                        console.error('Non-JSON response:', text);
+                        throw new Error('Server returned non-JSON response: ' + text.substring(0, 200));
+                    });
+                }
+                
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
+                
                 if (data.success) {
                     resultDiv.className = 'result success';
                     resultDiv.innerHTML = `
-                        <h3>Payment Request Successful!</h3>
-                        <p><strong>Reference:</strong> ${data.data.reference || 'N/A'}</p>
-                        <p><strong>Amount:</strong> ${data.data.amount || 'N/A'} UGX</p>
-                        <p><strong>Phone:</strong> ${data.data.phone_number || 'N/A'}</p>
-                        <p><strong>Status:</strong> ${data.data.status || 'N/A'}</p>
-                        <p><strong>Message:</strong> ${data.data.message || 'Payment request sent successfully'}</p>
+                        <strong>✅ Success!</strong><br>
+                        Payment request sent successfully!<br><br>
+                        <strong>Response:</strong><br>
+                        <div class="debug-info">${JSON.stringify(data, null, 2)}</div>
                     `;
                 } else {
                     resultDiv.className = 'result error';
                     resultDiv.innerHTML = `
-                        <h3>Payment Request Failed</h3>
-                        <p><strong>Error:</strong> ${data.data.message || 'Unknown error occurred'}</p>
+                        <strong>❌ Error:</strong><br>
+                        ${data.data?.message || 'Unknown error occurred'}<br><br>
+                        <strong>Full Response:</strong><br>
+                        <div class="debug-info">${JSON.stringify(data, null, 2)}</div>
                     `;
                 }
             })
             .catch(error => {
+                console.error('Fetch error:', error);
                 resultDiv.className = 'result error';
                 resultDiv.innerHTML = `
-                    <h3>Network Error</h3>
-                    <p><strong>Error:</strong> ${error.message}</p>
+                    <strong>❌ Network Error:</strong><br>
+                    ${error.message}<br><br>
+                    <strong>Debug Info:</strong><br>
+                    <div class="debug-info">Check browser console for more details</div>
                 `;
             })
             .finally(() => {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Request Payment';
+                submitBtn.textContent = 'Send Payment Request';
             });
         });
     </script>
