@@ -181,6 +181,12 @@ $ajax_url = admin_url('admin-ajax.php');
             formData.append('action', 'marzpay_collect_money');
             formData.append('nonce', '<?php echo $nonce; ?>');
             
+            // Debug: Log form data
+            console.log('Form data being sent:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key + ': ' + value);
+            }
+            
             // Send AJAX request
             fetch('<?php echo $ajax_url; ?>', {
                 method: 'POST',
