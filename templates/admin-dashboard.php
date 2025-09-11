@@ -49,10 +49,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                                     ?>
                                 </td>
                             </tr>
-                            <tr>
-                                <td><strong><?php _e( 'Account UUID:', 'marzpay' ); ?></strong></td>
-                                <td><?php echo esc_html( $account['data']['account']['uuid'] ?? 'N/A' ); ?></td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -125,20 +121,39 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                         <tbody>
                             <?php foreach ( $recent_transactions as $transaction ) : ?>
                                 <tr>
-                                    <td><?php echo esc_html( $transaction->reference ); ?></td>
-                                    <td><?php echo marzpay_get_transaction_type_label( $transaction->type ); ?></td>
-                                    <td><?php echo marzpay_format_amount( $transaction->amount, $transaction->currency ); ?></td>
+                                    <td>
+                                        <strong><?php echo esc_html( $transaction->reference ); ?></strong>
+                                    </td>
+                                    <td>
+                                        <span class="transaction-type">
+                                            <?php echo marzpay_get_transaction_type_label( $transaction->type ); ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <strong><?php echo marzpay_format_amount( $transaction->amount, $transaction->currency ); ?></strong>
+                                    </td>
                                     <td><?php echo marzpay_get_transaction_status_badge( $transaction->status ); ?></td>
                                     <td><?php echo esc_html( $transaction->phone_number ); ?></td>
-                                    <td><?php echo date( 'M j, Y H:i', strtotime( $transaction->created_at ) ); ?></td>
+                                    <td>
+                                        <?php echo date( 'M j, Y', strtotime( $transaction->created_at ) ); ?>
+                                        <br>
+                                        <small style="color: #646970;"><?php echo date( 'H:i', strtotime( $transaction->created_at ) ); ?></small>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
-                <p><a href="<?php echo admin_url( 'admin.php?page=marzpay-transactions' ); ?>" class="button"><?php _e( 'View All Transactions', 'marzpay' ); ?></a></p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="<?php echo admin_url( 'admin.php?page=marzpay-transactions' ); ?>" class="button button-primary">
+                        <?php _e( 'View All Transactions', 'marzpay' ); ?>
+                    </a>
+                </div>
             <?php else : ?>
-                <p><?php _e( 'No transactions found.', 'marzpay' ); ?></p>
+                <div style="text-align: center; padding: 40px; color: #646970;">
+                    <p style="font-size: 1.1em; margin: 0;"><?php _e( 'No transactions found.', 'marzpay' ); ?></p>
+                    <p style="margin: 10px 0 0 0;"><?php _e( 'Transactions will appear here once you start collecting payments.', 'marzpay' ); ?></p>
+                </div>
             <?php endif; ?>
         </div>
 
@@ -148,63 +163,89 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 <style>
 .marzpay-dashboard-section {
     margin-bottom: 30px;
-    padding: 20px;
+    padding: 25px;
     background: #fff;
-    border: 1px solid #ccd0d4;
-    border-radius: 4px;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .marzpay-dashboard-section h2 {
     margin-top: 0;
-    color: #23282d;
+    margin-bottom: 20px;
+    color: #1d2327;
+    font-size: 1.5em;
+    font-weight: 600;
+    border-bottom: 2px solid #f0f0f1;
+    padding-bottom: 10px;
 }
 
 .marzpay-account-info table {
     margin: 0;
+    width: 100%;
 }
 
 .marzpay-account-info td {
-    padding: 8px 12px;
+    padding: 12px 15px;
     border-bottom: 1px solid #f0f0f1;
+    vertical-align: top;
+}
+
+.marzpay-account-info td:first-child {
+    width: 30%;
+    font-weight: 600;
+    color: #1d2327;
 }
 
 .marzpay-balance-info {
     text-align: center;
+    margin: 20px 0;
 }
 
 .balance-card {
     display: inline-block;
-    padding: 30px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px 50px;
+    background: linear-gradient(135deg, #0073aa 0%, #005a87 100%);
     color: white;
-    border-radius: 8px;
-    min-width: 200px;
+    border-radius: 12px;
+    min-width: 250px;
+    box-shadow: 0 4px 15px rgba(0,115,170,0.3);
 }
 
 .balance-card h3 {
-    font-size: 2em;
+    font-size: 2.5em;
     margin: 0 0 10px 0;
-    font-weight: bold;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .balance-card p {
     margin: 0;
     opacity: 0.9;
+    font-size: 1.1em;
+    font-weight: 500;
 }
 
 .marzpay-stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    margin-top: 25px;
 }
 
 .stat-card {
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 6px;
+    padding: 25px;
+    background: #fff;
+    border-radius: 8px;
     text-align: center;
     border-left: 4px solid #0073aa;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 }
 
 .stat-card.success {
@@ -220,33 +261,82 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 }
 
 .stat-card h3 {
-    font-size: 2em;
+    font-size: 2.2em;
     margin: 0 0 10px 0;
-    color: #23282d;
+    color: #1d2327;
+    font-weight: 700;
 }
 
 .stat-card p {
     margin: 0;
     color: #646970;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.95em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .marzpay-recent-transactions {
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 .marzpay-recent-transactions table {
     margin: 0;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 .marzpay-recent-transactions th,
 .marzpay-recent-transactions td {
-    padding: 12px;
+    padding: 15px 12px;
     text-align: left;
+    border-bottom: 1px solid #f0f0f1;
 }
 
 .marzpay-recent-transactions th {
-    background: #f6f7f7;
+    background: #f8f9fa;
     font-weight: 600;
+    color: #1d2327;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.marzpay-recent-transactions tr:hover {
+    background: #f8f9fa;
+}
+
+.status-success {
+    color: #00a32a;
+    font-weight: 600;
+}
+
+.status-warning {
+    color: #dba617;
+    font-weight: 600;
+}
+
+.status-error {
+    color: #d63638;
+    font-weight: 600;
+}
+
+.notice {
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-radius: 6px;
+    border-left: 4px solid;
+}
+
+.notice-warning {
+    background: #fff8e1;
+    border-left-color: #dba617;
+    color: #8a6914;
+}
+
+.notice-success {
+    background: #f0f8ff;
+    border-left-color: #0073aa;
+    color: #0073aa;
 }
 </style>
