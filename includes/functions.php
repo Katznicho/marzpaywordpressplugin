@@ -25,6 +25,18 @@ function marzpay_get_database() {
  * Format currency amount
  */
 function marzpay_format_amount( $amount, $currency = 'UGX' ) {
+    // Handle API response format where amount is an array
+    if ( is_array( $amount ) ) {
+        if ( isset( $amount['formatted'] ) && isset( $amount['currency'] ) ) {
+            return $amount['formatted'] . ' ' . $amount['currency'];
+        } elseif ( isset( $amount['raw'] ) && isset( $amount['currency'] ) ) {
+            return number_format( $amount['raw'], 0, '.', ',' ) . ' ' . $amount['currency'];
+        } elseif ( isset( $amount['raw'] ) ) {
+            return number_format( $amount['raw'], 0, '.', ',' ) . ' ' . $currency;
+        }
+    }
+    
+    // Handle simple numeric amount
     return number_format( $amount, 0, '.', ',' ) . ' ' . $currency;
 }
 

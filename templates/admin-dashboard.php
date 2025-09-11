@@ -174,10 +174,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                                         <strong><?php 
                                         $amount = isset( $transaction['amount'] ) ? $transaction['amount'] : 0;
                                         $currency = isset( $transaction['currency'] ) ? $transaction['currency'] : 'UGX';
-                                        if ( function_exists( 'marzpay_format_amount' ) ) {
+                                        
+                                        // Handle API amount format
+                                        if ( is_array( $amount ) && isset( $amount['formatted'] ) ) {
+                                            echo $amount['formatted'] . ' ' . ( isset( $amount['currency'] ) ? $amount['currency'] : $currency );
+                                        } elseif ( function_exists( 'marzpay_format_amount' ) ) {
                                             echo marzpay_format_amount( $amount, $currency );
                                         } else {
-                                            echo number_format( $amount ) . ' ' . $currency;
+                                            echo number_format( is_array( $amount ) ? ( isset( $amount['raw'] ) ? $amount['raw'] : 0 ) : $amount ) . ' ' . $currency;
                                         }
                                         ?></strong>
                                     </td>
