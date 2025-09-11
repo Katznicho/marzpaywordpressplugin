@@ -125,7 +125,7 @@ class MarzPay_Shortcodes {
             $data = array(
                 'amount' => (int) $amount,
                 'phone_number' => $phone,
-                'reference' => $reference ?: uniqid( 'order_' ),
+                'reference' => $reference, // Only use user-provided reference, let API generate if empty
                 'description' => $description,
                 'country' => 'UG'
             );
@@ -273,7 +273,7 @@ class MarzPay_Shortcodes {
         $data = array(
             'amount' => $amount,
             'phone_number' => $validated_phone,
-            'reference' => $reference ?: uniqid( 'order_' ),
+            'reference' => $reference, // Only use user-provided reference, let API generate if empty
             'description' => $description,
             'callback_url' => $callback_url,
             'country' => $country
@@ -353,7 +353,7 @@ class MarzPay_Shortcodes {
         $data = array(
             'amount' => $amount,
             'phone_number' => $validated_phone,
-            'reference' => $reference ?: uniqid( 'withdrawal_' ),
+            'reference' => $reference, // Only use user-provided reference, let API generate if empty
             'description' => $description,
             'callback_url' => $callback_url,
             'country' => $country
