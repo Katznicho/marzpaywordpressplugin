@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MarzPay Collect Money</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #0073aa;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background: #005a87;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .description {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Test MarzPay Collect Money</h1>
+        <p>This form tests the MarzPay collect money functionality.</p>
+        
+        <form id="collect-form">
+            <div class="form-group">
+                <label for="amount">Amount (UGX) *</label>
+                <input type="number" id="amount" name="amount" value="1000" min="500" max="10000000" required>
+                <div class="description">Minimum: 500 UGX, Maximum: 10,000,000 UGX</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" value="0701234567" placeholder="0701234567" required>
+                <div class="description">Enter Uganda phone number (e.g., 0701234567)</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="reference">Reference</label>
+                <input type="text" id="reference" name="reference" value="TEST-001" placeholder="Optional reference">
+                <div class="description">Optional reference for this transaction</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3" placeholder="Optional description">Test payment collection</textarea>
+                <div class="description">Optional description for this transaction</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="callback_url">Callback URL</label>
+                <input type="url" id="callback_url" name="callback_url" placeholder="https://yoursite.com/callback">
+                <div class="description">Optional callback URL for payment notifications</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select id="country" name="country">
+                    <option value="UG" selected>Uganda</option>
+                </select>
+            </div>
+            
+            <button type="submit" id="submit-btn">Request Payment</button>
+        </form>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('collect-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const resultDiv = document.getElementById('result');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+            resultDiv.className = 'result loading';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Sending payment request...';
+            
+            // Get form data
+            const formData = new FormData(this);
+            formData.append('action', 'marzpay_collect_money');
+            formData.append('nonce', '<?php echo wp_create_nonce("marzpay_nonce"); ?>');
+            
+            // Send AJAX request
+            fetch('<?php echo admin_url("admin-ajax.php"); ?>', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>Payment Request Successful!</h3>
+                        <p><strong>Reference:</strong> ${data.data.reference || 'N/A'}</p>
+                        <p><strong>Amount:</strong> ${data.data.amount || 'N/A'} UGX</p>
+                        <p><strong>Phone:</strong> ${data.data.phone_number || 'N/A'}</p>
+                        <p><strong>Status:</strong> ${data.data.status || 'N/A'}</p>
+                        <p><strong>Message:</strong> ${data.data.message || 'Payment request sent successfully'}</p>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <h3>Payment Request Failed</h3>
+                        <p><strong>Error:</strong> ${data.data.message || 'Unknown error occurred'}</p>
+                    `;
+                }
+            })
+            .catch(error => {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h3>Network Error</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Request Payment';
+            });
+        });
+    </script>
+</body>
+</html>
