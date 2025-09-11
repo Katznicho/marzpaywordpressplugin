@@ -21,8 +21,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <label for="marzpay_phone"><?php _e( 'Phone Number', 'marzpay' ); ?> *</label>
                 <input type="tel" id="marzpay_phone" name="phone" 
                        value="<?php echo esc_attr( $atts['phone'] ); ?>" 
-                       placeholder="0701234567" required />
-                <small class="description"><?php _e( 'Enter Uganda phone number (e.g., 0701234567)', 'marzpay' ); ?></small>
+                       placeholder="+256759983853" required />
+                <small class="description"><?php _e( 'Enter phone number in international format (e.g., +256759983853)', 'marzpay' ); ?></small>
             </div>
             
             <div class="form-group">

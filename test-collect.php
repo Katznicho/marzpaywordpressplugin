@@ -132,8 +132,8 @@ $ajax_url = admin_url('admin-ajax.php');
             
             <div class="form-group">
                 <label for="phone">Phone Number *</label>
-                <input type="tel" id="phone" name="phone" value="0701234567" placeholder="0701234567" required>
-                <div class="description">Enter Uganda phone number (e.g., 0701234567)</div>
+                <input type="tel" id="phone" name="phone" value="+256759983853" placeholder="+256759983853" required>
+                <div class="description">Enter phone number in international format (e.g., +256759983853)</div>
             </div>
             
             <div class="form-group">
@@ -216,9 +216,10 @@ $ajax_url = admin_url('admin-ajax.php');
                     `;
                 } else {
                     resultDiv.className = 'result error';
+                    const errorMessage = data.data?.message || data.message || 'Unknown error occurred';
                     resultDiv.innerHTML = `
                         <strong>❌ Error:</strong><br>
-                        ${data.data?.message || 'Unknown error occurred'}<br><br>
+                        ${errorMessage}<br><br>
                         <strong>Full Response:</strong><br>
                         <div class="debug-info">${JSON.stringify(data, null, 2)}</div>
                     `;

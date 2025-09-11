@@ -235,7 +235,15 @@ class MarzPay_API_Client {
     public function validate_phone_number( $phone, $country = 'UG' ) {
         // Basic phone validation for Uganda
         if ( $country === 'UG' ) {
-            $phone = preg_replace( '/[^0-9]/', '', $phone );
+            // Remove all non-numeric characters except +
+            $phone = preg_replace( '/[^0-9+]/', '', $phone );
+            
+            // Handle international format with +
+            if ( strpos( $phone, '+' ) === 0 ) {
+                $phone = substr( $phone, 1 ); // Remove the +
+            }
+            
+            // Now validate the numeric part
             if ( strlen( $phone ) === 9 && substr( $phone, 0, 1 ) === '7' ) {
                 return '256' . $phone;
             } elseif ( strlen( $phone ) === 12 && substr( $phone, 0, 3 ) === '256' ) {
