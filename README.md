@@ -2,6 +2,8 @@
 
 **Accept mobile money payments in WordPress using the MarzPay Collections API. Perfect for businesses in Uganda accepting mobile payments.**
 
+> **📖 For WordPress Developers:** Complete shortcode documentation is available in the WordPress admin under **MarzPay → Documentation** after plugin activation.
+
 ## 📋 Table of Contents
 
 - [Overview](#overview)

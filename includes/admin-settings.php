@@ -67,9 +67,19 @@ class MarzPay_Admin_Settings {
             'marzpay-dashboard',
             __( 'Settings', 'marzpay' ),
             __( 'Settings', 'marzpay' ),
-        'manage_options',
-        'marzpay-settings',
+            'manage_options',
+            'marzpay-settings',
             array( $this, 'settings_page' )
+        );
+        
+        // Documentation submenu
+        add_submenu_page(
+            'marzpay-dashboard',
+            __( 'Documentation', 'marzpay' ),
+            __( 'Documentation', 'marzpay' ),
+            'manage_options',
+            'marzpay-documentation',
+            array( $this, 'documentation_page' )
         );
     }
     
@@ -364,6 +374,13 @@ class MarzPay_Admin_Settings {
             $error_message = $result['message'] ?? __( 'Unknown error occurred', 'marzpay' );
             wp_send_json_error( array( 'message' => sprintf( __( 'API connection failed: %s', 'marzpay' ), $error_message ) ) );
         }
+    }
+    
+    /**
+     * Documentation page
+     */
+    public function documentation_page() {
+        include MARZPAY_PLUGIN_DIR . 'templates/admin-documentation.php';
     }
 }
 
