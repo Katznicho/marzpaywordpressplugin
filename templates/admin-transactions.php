@@ -49,6 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
+                        <th><?php _e( 'Date', 'marzpay' ); ?></th>
                         <th><?php _e( 'Reference', 'marzpay' ); ?></th>
                         <th><?php _e( 'Type', 'marzpay' ); ?></th>
                         <th><?php _e( 'Amount', 'marzpay' ); ?></th>
@@ -56,7 +57,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                         <th><?php _e( 'Phone Number', 'marzpay' ); ?></th>
                         <th><?php _e( 'Provider', 'marzpay' ); ?></th>
                         <th><?php _e( 'Description', 'marzpay' ); ?></th>
-                        <th><?php _e( 'Date', 'marzpay' ); ?></th>
                         <th><?php _e( 'Actions', 'marzpay' ); ?></th>
                     </tr>
                 </thead>
@@ -64,31 +64,73 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     <?php foreach ( $transactions as $transaction ) : ?>
                         <tr>
                             <td>
-                                <strong><?php echo esc_html( $transaction->reference ); ?></strong>
+                                <?php 
+                                $date = isset( $transaction['timeline']['created_at'] ) ? $transaction['timeline']['created_at'] : ( isset( $transaction['created_at'] ) ? $transaction['created_at'] : date( 'Y-m-d H:i:s' ) );
+                                echo date( 'M j, Y', strtotime( $date ) ); 
+                                ?>
                                 <br>
-                                <small class="text-muted"><?php echo esc_html( $transaction->uuid ); ?></small>
+                                <small class="text-muted"><?php echo date( 'H:i:s', strtotime( $date ) ); ?></small>
                             </td>
-                            <td><?php echo marzpay_get_transaction_type_label( $transaction->type ); ?></td>
                             <td>
-                                <strong><?php echo marzpay_format_amount( $transaction->amount, $transaction->currency ); ?></strong>
+                                <strong><?php echo esc_html( isset( $transaction['reference'] ) ? $transaction['reference'] : 'N/A' ); ?></strong>
+                                <br>
+                                <small class="text-muted"><?php echo esc_html( isset( $transaction['uuid'] ) ? $transaction['uuid'] : 'N/A' ); ?></small>
                             </td>
-                            <td><?php echo marzpay_get_transaction_status_badge( $transaction->status ); ?></td>
-                            <td><?php echo esc_html( $transaction->phone_number ); ?></td>
-                            <td><?php echo marzpay_get_provider_label( $transaction->provider ); ?></td>
                             <td>
-                                <?php if ( ! empty( $transaction->description ) ) : ?>
-                                    <?php echo esc_html( $transaction->description ); ?>
+                                <?php 
+                                $type = isset( $transaction['type'] ) ? $transaction['type'] : 'collection';
+                                if ( function_exists( 'marzpay_get_transaction_type_label' ) ) {
+                                    echo marzpay_get_transaction_type_label( $type );
+                                } else {
+                                    echo ucfirst( $type );
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <strong><?php 
+                                $amount = isset( $transaction['amount'] ) ? $transaction['amount'] : 0;
+                                $currency = isset( $transaction['currency'] ) ? $transaction['currency'] : 'UGX';
+                                
+                                // Handle API amount format
+                                if ( is_array( $amount ) && isset( $amount['formatted'] ) ) {
+                                    echo $amount['formatted'] . ' ' . ( isset( $amount['currency'] ) ? $amount['currency'] : $currency );
+                                } elseif ( function_exists( 'marzpay_format_amount' ) ) {
+                                    echo marzpay_format_amount( $amount, $currency );
+                                } else {
+                                    echo number_format( is_array( $amount ) ? ( isset( $amount['raw'] ) ? $amount['raw'] : 0 ) : $amount ) . ' ' . $currency;
+                                }
+                                ?></strong>
+                            </td>
+                            <td>
+                                <?php 
+                                $status = isset( $transaction['status'] ) ? $transaction['status'] : 'unknown';
+                                if ( function_exists( 'marzpay_get_transaction_status_badge' ) ) {
+                                    echo marzpay_get_transaction_status_badge( $status );
+                                } else {
+                                    echo '<span class="status-' . $status . '">' . ucfirst( $status ) . '</span>';
+                                }
+                                ?>
+                            </td>
+                            <td><?php echo esc_html( isset( $transaction['phone_number'] ) ? $transaction['phone_number'] : 'N/A' ); ?></td>
+                            <td>
+                                <?php 
+                                $provider = isset( $transaction['provider'] ) ? $transaction['provider'] : 'unknown';
+                                if ( function_exists( 'marzpay_get_provider_label' ) ) {
+                                    echo marzpay_get_provider_label( $provider );
+                                } else {
+                                    echo ucfirst( $provider );
+                                }
+                                ?>
+                            </td>
+                            <td>
+                                <?php if ( ! empty( $transaction['description'] ) ) : ?>
+                                    <?php echo esc_html( $transaction['description'] ); ?>
                                 <?php else : ?>
                                     <span class="text-muted"><?php _e( 'No description', 'marzpay' ); ?></span>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <?php echo date( 'M j, Y', strtotime( $transaction->created_at ) ); ?>
-                                <br>
-                                <small class="text-muted"><?php echo date( 'H:i:s', strtotime( $transaction->created_at ) ); ?></small>
-                            </td>
-                            <td>
-                                <button type="button" class="button button-small view-transaction-details" data-transaction-id="<?php echo esc_attr( $transaction->id ); ?>">
+                                <button type="button" class="button button-small view-transaction-details" data-transaction-id="<?php echo esc_attr( isset( $transaction['uuid'] ) ? $transaction['uuid'] : 'N/A' ); ?>">
                                     <?php _e( 'View Details', 'marzpay' ); ?>
                                 </button>
                             </td>
