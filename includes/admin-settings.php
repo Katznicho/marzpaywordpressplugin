@@ -23,6 +23,7 @@ class MarzPay_Admin_Settings {
         add_action( 'admin_init', array( $this, 'register_settings' ) );
         add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
         add_action( 'wp_ajax_marzpay_get_transaction_details', array( $this, 'ajax_get_transaction_details' ) );
+        add_action( 'wp_ajax_marzpay_test_api', array( $this, 'ajax_test_api_connection' ) );
     }
     
     /**
@@ -260,6 +261,38 @@ class MarzPay_Admin_Settings {
         $html .= '</div>';
         
         wp_send_json_success( array( 'html' => $html ) );
+    }
+    
+    /**
+     * AJAX handler for testing API connection
+     */
+    public function ajax_test_api_connection() {
+        check_ajax_referer( 'marzpay_nonce', 'nonce' );
+        
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+        }
+        
+        $api_client = MarzPay_API_Client::get_instance();
+        
+        if ( ! $api_client->is_configured() ) {
+            wp_send_json_error( array( 'message' => 'API credentials not configured. Please enter your API User and API Key.' ) );
+        }
+        
+        // Test API connection by getting account information
+        $result = $api_client->get_account();
+        
+        if ( isset( $result['status'] ) && $result['status'] === 'success' ) {
+            $account_data = $result['data'] ?? array();
+            $message = sprintf( 
+                __( 'API connection successful! Connected as: %s', 'marzpay' ), 
+                $account_data['name'] ?? $account_data['email'] ?? 'Unknown'
+            );
+            wp_send_json_success( array( 'message' => $message ) );
+        } else {
+            $error_message = $result['message'] ?? __( 'Unknown error occurred', 'marzpay' );
+            wp_send_json_error( array( 'message' => sprintf( __( 'API connection failed: %s', 'marzpay' ), $error_message ) ) );
+        }
     }
 }
 

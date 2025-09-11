@@ -172,7 +172,7 @@ jQuery(document).ready(function($) {
         result.html('');
         
         $.ajax({
-            url: ajaxurl,
+            url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
             type: 'POST',
             data: {
                 action: 'marzpay_test_api',
