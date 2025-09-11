@@ -134,11 +134,22 @@ class MarzPay_Plugin {
         // Load text domain
         load_plugin_textdomain( 'marzpay', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
         
-        // Initialize database
-        MarzPay_Database::get_instance();
+        // Initialize components only if classes exist
+        if ( class_exists( 'MarzPay_Database' ) ) {
+            MarzPay_Database::get_instance();
+        }
         
-        // Initialize webhooks
-        MarzPay_Webhooks::get_instance();
+        if ( class_exists( 'MarzPay_Webhooks' ) ) {
+            MarzPay_Webhooks::get_instance();
+        }
+        
+        if ( class_exists( 'MarzPay_Admin_Settings' ) ) {
+            MarzPay_Admin_Settings::get_instance();
+        }
+        
+        if ( class_exists( 'MarzPay_Shortcodes' ) ) {
+            MarzPay_Shortcodes::get_instance();
+        }
     }
     
     public function enqueue_scripts() {
@@ -167,8 +178,10 @@ add_action( 'plugins_loaded', 'marzpay_init' );
 
 // Activation hook
 function marzpay_activate() {
-    // Create database tables
-    MarzPay_Database::create_tables();
+    // Create database tables only if class exists
+    if ( class_exists( 'MarzPay_Database' ) ) {
+        MarzPay_Database::create_tables();
+    }
     
     // Set default options
     add_option( 'marzpay_version', MARZPAY_VERSION );
@@ -189,8 +202,10 @@ register_deactivation_hook( __FILE__, 'marzpay_deactivate' );
 
 // Uninstall hook
 function marzpay_uninstall() {
-    // Remove database tables
-    MarzPay_Database::drop_tables();
+    // Remove database tables only if class exists
+    if ( class_exists( 'MarzPay_Database' ) ) {
+        MarzPay_Database::drop_tables();
+    }
     
     // Remove options
     delete_option( 'marzpay_version' );
