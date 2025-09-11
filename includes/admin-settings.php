@@ -142,8 +142,43 @@ class MarzPay_Admin_Settings {
             // Check what's actually in the database
             global $wpdb;
             $table = $wpdb->prefix . 'marzpay_transactions';
-            $all_transactions = $wpdb->get_results( "SELECT * FROM $table LIMIT 5" );
-            error_log( 'MarzPay Database Debug - Raw transactions: ' . wp_json_encode( $all_transactions, JSON_PRETTY_PRINT ) );
+            
+            // Check if table exists
+            $table_exists = $wpdb->get_var( "SHOW TABLES LIKE '$table'" );
+            error_log( 'MarzPay Database Debug - Table exists: ' . ( $table_exists ? 'Yes' : 'No' ) );
+            
+            if ( $table_exists ) {
+                $all_transactions = $wpdb->get_results( "SELECT * FROM $table LIMIT 5" );
+                error_log( 'MarzPay Database Debug - Raw transactions count: ' . count( $all_transactions ) );
+                error_log( 'MarzPay Database Debug - Raw transactions: ' . wp_json_encode( $all_transactions, JSON_PRETTY_PRINT ) );
+                
+                // Check table structure
+                $table_structure = $wpdb->get_results( "DESCRIBE $table" );
+                error_log( 'MarzPay Database Debug - Table structure: ' . wp_json_encode( $table_structure, JSON_PRETTY_PRINT ) );
+                
+                // Test insert a sample transaction if none exist
+                if ( count( $all_transactions ) === 0 ) {
+                    error_log( 'MarzPay Database Debug - No transactions found, testing insert...' );
+                    $test_data = array(
+                        'uuid' => 'test-uuid-' . time(),
+                        'reference' => 'TEST-' . time(),
+                        'type' => 'collection',
+                        'status' => 'successful',
+                        'amount' => 1000.00,
+                        'currency' => 'UGX',
+                        'phone_number' => '+256700000000',
+                        'description' => 'Test transaction for debugging',
+                        'provider' => 'mtn',
+                        'metadata' => json_encode( array( 'test' => true ) )
+                    );
+                    
+                    $insert_result = $wpdb->insert( $table, $test_data );
+                    error_log( 'MarzPay Database Debug - Test insert result: ' . ( $insert_result ? 'Success' : 'Failed' ) );
+                    if ( $insert_result === false ) {
+                        error_log( 'MarzPay Database Debug - Insert error: ' . $wpdb->last_error );
+                    }
+                }
+            }
         }
         
         include MARZPAY_PLUGIN_DIR . 'templates/admin-dashboard.php';

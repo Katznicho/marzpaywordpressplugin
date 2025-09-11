@@ -264,12 +264,12 @@ class MarzPay_Database {
             $sql = $wpdb->prepare( $sql, $where_values );
         }
         
-        $transactions = $wpdb->get_results( $sql, ARRAY_A );
+        $transactions = $wpdb->get_results( $sql );
         
         // Decode metadata for each transaction
         foreach ( $transactions as &$transaction ) {
-            if ( isset( $transaction['metadata'] ) ) {
-                $transaction['metadata'] = json_decode( $transaction['metadata'], true );
+            if ( isset( $transaction->metadata ) ) {
+                $transaction->metadata = json_decode( $transaction->metadata, true );
             }
         }
         
