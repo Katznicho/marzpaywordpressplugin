@@ -1,0 +1,334 @@
+/**
+ * MarzPay Frontend Styles
+ */
+
+.marzpay-form {
+    max-width: 500px;
+    margin: 20px 0;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.marzpay-form .form-group {
+    margin-bottom: 15px;
+}
+
+.marzpay-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.marzpay-form input[type="text"],
+.marzpay-form input[type="number"],
+.marzpay-form input[type="tel"],
+.marzpay-form input[type="url"],
+.marzpay-form textarea,
+.marzpay-form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.marzpay-form input:focus,
+.marzpay-form textarea:focus,
+.marzpay-form select:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0,115,170,0.2);
+}
+
+.marzpay-button {
+    background: #0073aa;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.marzpay-button:hover {
+    background: #005177;
+}
+
+.marzpay-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.marzpay-button.loading {
+    position: relative;
+    color: transparent;
+}
+
+.marzpay-button.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #fff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: marzpay-spin 1s linear infinite;
+}
+
+@keyframes marzpay-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.marzpay-success {
+    background: #d4edda;
+    color: #155724;
+    padding: 12px;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.marzpay-error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.marzpay-warning {
+    background: #fff3cd;
+    color: #856404;
+    padding: 12px;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.marzpay-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    padding: 12px;
+    border: 1px solid #bee5eb;
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.marzpay-balance {
+    display: inline-block;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.marzpay-balance .marzpay-amount {
+    color: #0073aa;
+}
+
+.marzpay-balance .marzpay-currency {
+    color: #6c757d;
+    font-size: 14px;
+    margin-left: 5px;
+}
+
+.marzpay-transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.marzpay-transactions-table th,
+.marzpay-transactions-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.marzpay-transactions-table th {
+    background: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+}
+
+.marzpay-transactions-table tr:hover {
+    background: #f8f9fa;
+}
+
+.marzpay-status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.marzpay-status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.marzpay-status-processing {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.marzpay-status-successful {
+    background: #d4edda;
+    color: #155724;
+}
+
+.marzpay-status-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.marzpay-status-cancelled {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.marzpay-type-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.marzpay-type-collection {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.marzpay-type-withdrawal {
+    background: #ffeaa7;
+    color: #856404;
+}
+
+.marzpay-type-charge {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.marzpay-type-refund {
+    background: #d4edda;
+    color: #155724;
+}
+
+.marzpay-provider-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.marzpay-provider-mtn {
+    background: #ffd700;
+    color: #000;
+}
+
+.marzpay-provider-airtel {
+    background: #ff0000;
+    color: #fff;
+}
+
+.marzpay-no-transactions {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.marzpay-loading {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+}
+
+.marzpay-loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #6c757d;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: marzpay-spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .marzpay-form {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    .marzpay-transactions-table {
+        font-size: 14px;
+    }
+    
+    .marzpay-transactions-table th,
+    .marzpay-transactions-table td {
+        padding: 8px;
+    }
+    
+    .marzpay-balance {
+        font-size: 16px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .marzpay-form {
+        background: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .marzpay-form input[type="text"],
+    .marzpay-form input[type="number"],
+    .marzpay-form input[type="tel"],
+    .marzpay-form input[type="url"],
+    .marzpay-form textarea,
+    .marzpay-form select {
+        background: #4a5568;
+        border-color: #718096;
+        color: #e2e8f0;
+    }
+    
+    .marzpay-form input:focus,
+    .marzpay-form textarea:focus,
+    .marzpay-form select:focus {
+        border-color: #0073aa;
+    }
+    
+    .marzpay-transactions-table th {
+        background: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .marzpay-transactions-table tr:hover {
+        background: #4a5568;
+    }
+}

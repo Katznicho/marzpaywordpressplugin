@@ -1,124 +1,366 @@
 <?php
+/**
+ * MarzPay Shortcodes
+ * 
+ * Handles all shortcode functionality for collections and withdrawals
+ */
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-/**
- * Register MarzPay payment button shortcode
- */
-add_shortcode('marzpay_button', 'marzpay_button_shortcode');
-
-function marzpay_button_shortcode($atts) {
-    // Set default attributes
-    $atts = shortcode_atts(array(
-        'amount' => '1000',
-        'phone'  => ''
-    ), $atts, 'marzpay_button');
-
-    // Validate phone number
-    if (empty($atts['phone'])) {
-        return '<p style="color:red; font-weight: bold;">❌ Phone number is required. Use: [marzpay_button phone="256759983853"]</p>';
-    }
-
-    // Validate amount
-    if (!is_numeric($atts['amount']) || $atts['amount'] <= 0) {
-        return '<p style="color:red; font-weight: bold;">❌ Invalid amount. Amount must be a positive number.</p>';
+class MarzPay_Shortcodes {
+    
+    private static $instance = null;
+    
+    public static function get_instance() {
+        if ( null === self::$instance ) {
+            self::$instance = new self();
+        }
+        return self::$instance;
     }
     
-    // Check amount limits according to MarzPay requirements
-    if ($atts['amount'] < 500) {
-        return '<p style="color:red; font-weight: bold;">❌ Amount too low. The minimum amount for collection is 500 UGX.</p>';
+    private function __construct() {
+        add_action( 'init', array( $this, 'register_shortcodes' ) );
+        add_action( 'wp_ajax_marzpay_collect_money', array( $this, 'ajax_collect_money' ) );
+        add_action( 'wp_ajax_marzpay_send_money', array( $this, 'ajax_send_money' ) );
+        add_action( 'wp_ajax_nopriv_marzpay_collect_money', array( $this, 'ajax_collect_money' ) );
+        add_action( 'wp_ajax_nopriv_marzpay_send_money', array( $this, 'ajax_send_money' ) );
     }
     
-    if ($atts['amount'] > 10000000) {
-        return '<p style="color:red; font-weight: bold;">❌ Amount too high. The maximum amount for collection is 10,000,000 UGX.</p>';
+    /**
+     * Register shortcodes
+     */
+    public function register_shortcodes() {
+        add_shortcode( 'marzpay_collect', array( $this, 'collect_money_shortcode' ) );
+        add_shortcode( 'marzpay_send', array( $this, 'send_money_shortcode' ) );
+        add_shortcode( 'marzpay_button', array( $this, 'payment_button_shortcode' ) ); // Legacy
+        add_shortcode( 'marzpay_balance', array( $this, 'balance_shortcode' ) );
+        add_shortcode( 'marzpay_transactions', array( $this, 'transactions_shortcode' ) );
     }
-
-    // Check if API credentials are configured
-    $api_user = get_option('marzpay_api_user');
-    $api_key = get_option('marzpay_api_key');
     
-    if (empty($api_user) || empty($api_key)) {
-        return '<p style="color:red; font-weight: bold;">❌ MarzPay API credentials not configured. Please go to Settings > MarzPay to configure your API settings.</p>';
+    /**
+     * Collect money shortcode
+     */
+    public function collect_money_shortcode( $atts ) {
+        $atts = shortcode_atts( array(
+            'amount' => '',
+            'phone' => '',
+            'reference' => '',
+            'description' => '',
+            'callback_url' => '',
+            'country' => 'UG',
+            'button_text' => 'Request Payment',
+            'show_form' => 'true',
+            'form_style' => 'default'
+        ), $atts, 'marzpay_collect' );
+        
+        $api_client = MarzPay_API_Client::get_instance();
+        
+        if ( ! $api_client->is_configured() ) {
+            return '<div class="marzpay-error">API credentials not configured. Please contact the administrator.</div>';
+        }
+        
+        ob_start();
+        include MARZPAY_PLUGIN_DIR . 'templates/shortcode-collect.php';
+        return ob_get_clean();
+    }
+    
+    /**
+     * Send money shortcode
+     */
+    public function send_money_shortcode( $atts ) {
+        $atts = shortcode_atts( array(
+            'amount' => '',
+            'phone' => '',
+            'reference' => '',
+            'description' => '',
+            'callback_url' => '',
+            'country' => 'UG',
+            'button_text' => 'Send Money',
+            'show_form' => 'true',
+            'form_style' => 'default'
+        ), $atts, 'marzpay_send' );
+        
+        $api_client = MarzPay_API_Client::get_instance();
+        
+        if ( ! $api_client->is_configured() ) {
+            return '<div class="marzpay-error">API credentials not configured. Please contact the administrator.</div>';
+        }
+        
+        ob_start();
+        include MARZPAY_PLUGIN_DIR . 'templates/shortcode-send.php';
+        return ob_get_clean();
+    }
+    
+    /**
+     * Payment button shortcode (legacy)
+     */
+    public function payment_button_shortcode( $atts ) {
+        $atts = shortcode_atts( array(
+            'amount' => '1000',
+            'phone' => '',
+            'reference' => '',
+            'description' => '',
+            'button_text' => 'Pay Now'
+        ), $atts, 'marzpay_button' );
+        
+        if ( empty( $atts['phone'] ) ) {
+            return '<div class="marzpay-error">Phone number is required.</div>';
+        }
+        
+        $api_client = MarzPay_API_Client::get_instance();
+        
+        if ( ! $api_client->is_configured() ) {
+            return '<div class="marzpay-error">API credentials not configured. Please contact the administrator.</div>';
     }
 
     $output = '';
 
     // Handle form submission
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marzpay_phone']) && $_POST['marzpay_phone'] === $atts['phone']) {
-        $amount = sanitize_text_field($_POST['marzpay_amount']);
-        $phone  = sanitize_text_field($_POST['marzpay_phone']);
-        
-        // Add debugging info if WP_DEBUG is enabled
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            $output .= '<div style="background: #f0f0f0; padding: 10px; margin: 10px 0; border-left: 4px solid #0073aa;">
-                <strong>Debug Info:</strong><br>
-                Amount: ' . esc_html($amount) . ' UGX<br>
-                Phone (original): ' . esc_html($phone) . '<br>
-                API User: ' . esc_html($api_user) . '<br>
-                API Key: ' . esc_html(substr($api_key, 0, 8)) . '...<br>
-                Reference: ' . esc_html(uniqid('order_')) . '
-            </div>';
+        if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['marzpay_phone'] ) && $_POST['marzpay_phone'] === $atts['phone'] ) {
+            $amount = sanitize_text_field( $_POST['marzpay_amount'] );
+            $phone = sanitize_text_field( $_POST['marzpay_phone'] );
+            $reference = sanitize_text_field( $_POST['marzpay_reference'] );
+            $description = sanitize_text_field( $_POST['marzpay_description'] );
+            
+            $data = array(
+                'amount' => (int) $amount,
+                'phone_number' => $phone,
+                'reference' => $reference ?: uniqid( 'order_' ),
+                'description' => $description,
+                'country' => 'UG'
+            );
+            
+            $result = $api_client->collect_money( $data );
+            
+            if ( isset( $result['status'] ) && $result['status'] === 'success' ) {
+                $output .= '<div class="marzpay-success">✅ Payment request sent successfully to ' . esc_html( $phone ) . '.</div>';
+                
+                // Store transaction in database
+                $database = MarzPay_Database::get_instance();
+                $database->insert_transaction( array(
+                    'uuid' => $result['data']['transaction']['uuid'],
+                    'reference' => $result['data']['transaction']['reference'],
+                    'type' => 'collection',
+                    'status' => $result['data']['transaction']['status'],
+                    'amount' => $amount,
+                    'phone_number' => $phone,
+                    'description' => $description,
+                    'provider' => $result['data']['collection']['provider'],
+                    'metadata' => $result
+                ));
+            } else {
+                $error = isset( $result['message'] ) ? $result['message'] : 'Payment request failed.';
+                $output .= '<div class="marzpay-error">❌ ' . esc_html( $error ) . '</div>';
+            }
         }
         
-        $result = marzpay_request_payment($amount, $phone);
-
-        if (isset($result['status']) && $result['status'] === 'success') {
-            $output .= '<p style="color:green; font-weight: bold;">✅ Payment request sent successfully to ' . esc_html($phone) . '.</p>';
+        // Display the payment form
+        $output .= '<form method="post" class="marzpay-form">';
+        $output .= '<input type="hidden" name="marzpay_phone" value="' . esc_attr( $atts['phone'] ) . '">';
+        $output .= '<input type="hidden" name="marzpay_amount" value="' . esc_attr( $atts['amount'] ) . '">';
+        $output .= '<input type="hidden" name="marzpay_reference" value="' . esc_attr( $atts['reference'] ) . '">';
+        $output .= '<input type="hidden" name="marzpay_description" value="' . esc_attr( $atts['description'] ) . '">';
+        $output .= '<button type="submit" class="marzpay-button">' . esc_html( $atts['button_text'] ) . ' UGX ' . esc_html( $atts['amount'] ) . '</button>';
+        $output .= '</form>';
+        
+        return $output;
+    }
+    
+    /**
+     * Balance shortcode
+     */
+    public function balance_shortcode( $atts ) {
+        $atts = shortcode_atts( array(
+            'show_currency' => 'true',
+            'format' => 'formatted'
+        ), $atts, 'marzpay_balance' );
+        
+        $api_client = MarzPay_API_Client::get_instance();
+        
+        if ( ! $api_client->is_configured() ) {
+            return '<div class="marzpay-error">API credentials not configured.</div>';
+        }
+        
+        $balance = $api_client->get_balance();
+        
+        if ( isset( $balance['status'] ) && $balance['status'] === 'success' ) {
+            $balance_data = $balance['data']['account']['balance'];
             
-            // Show additional success details if available
-            if (isset($result['reference'])) {
-                $output .= '<p><strong>Reference:</strong> ' . esc_html($result['reference']) . '</p>';
+            if ( $atts['format'] === 'raw' ) {
+                $amount = $balance_data['raw'];
+            } else {
+                $amount = $balance_data['formatted'];
             }
-            if (isset($result['message'])) {
-                $output .= '<p><strong>Message:</strong> ' . esc_html($result['message']) . '</p>';
+            
+            $output = '<div class="marzpay-balance">';
+            $output .= '<span class="marzpay-amount">' . esc_html( $amount ) . '</span>';
+            
+            if ( $atts['show_currency'] === 'true' ) {
+                $output .= ' <span class="marzpay-currency">' . esc_html( $balance_data['currency'] ) . '</span>';
             }
+            
+            $output .= '</div>';
+            
+            return $output;
         } else {
-            $error = isset($result['message']) ? $result['message'] : 'Payment request failed.';
-            $output .= '<p style="color:red; font-weight: bold;">❌ ' . esc_html($error) . '</p>';
-            
-            // Show additional error details if available
-            if (isset($result['code'])) {
-                $output .= '<p><strong>Error Code:</strong> ' . esc_html($result['code']) . '</p>';
-            }
-            if (isset($result['status_code'])) {
-                $output .= '<p><strong>HTTP Status:</strong> ' . esc_html($result['status_code']) . '</p>';
-            }
-            
-            // Add troubleshooting tips
-            $output .= '<div style="background: #fff3cd; padding: 10px; margin: 10px 0; border: 1px solid #ffeaa7; border-radius: 4px;">
-                <strong>💡 Troubleshooting Tips:</strong><br>
-                • Check your API credentials in Settings > MarzPay<br>
-                • Verify the phone number format (256759983853, 0759983853, or +256759983853)<br>
-                • Ensure the amount is between 500 and 10,000,000 UGX<br>
-                • Check your WordPress error logs if WP_DEBUG is enabled<br>
-                • Test the API connection from the admin panel
-            </div>';
+            return '<div class="marzpay-error">Unable to fetch balance.</div>';
         }
     }
-
-    // Display the payment button
-    $output .= '<form method="post" style="margin-top:10px;">
-                    <input type="hidden" name="marzpay_phone" value="' . esc_attr($atts['phone']) . '">
-                    <input type="hidden" name="marzpay_amount" value="' . esc_attr($atts['amount']) . '">
-                    <button type="submit" style="
-                        background-color: #0073aa; 
-                        color: white; 
-                        padding: 12px 24px; 
-                        border: none; 
-                        border-radius: 6px; 
-                        cursor: pointer;
-                        font-size: 16px;
-                        transition: background-color 0.3s ease;
-                    " 
-                    onmouseover="this.style.backgroundColor=\'#005177\'" 
-                    onmouseout="this.style.backgroundColor=\'#0073aa\'">
-                        Pay UGX ' . esc_html($atts['amount']) . '
-                    </button>
-                </form>';
-                
-    // Add amount requirements info
-    $output .= '<div style="background: #e7f3ff; padding: 8px 12px; margin: 10px 0; border-left: 4px solid #0073aa; border-radius: 4px; font-size: 12px; color: #005177;">
-        <strong>ℹ️ Amount Requirements:</strong> Minimum: 500 UGX | Maximum: 10,000,000 UGX
-    </div>';
-
-    return $output;
+    
+    /**
+     * Transactions shortcode
+     */
+    public function transactions_shortcode( $atts ) {
+        $atts = shortcode_atts( array(
+            'limit' => '10',
+            'status' => '',
+            'type' => '',
+            'show_pagination' => 'false'
+        ), $atts, 'marzpay_transactions' );
+        
+        $database = MarzPay_Database::get_instance();
+        
+        $args = array(
+            'limit' => intval( $atts['limit'] ),
+            'orderby' => 'created_at',
+            'order' => 'DESC'
+        );
+        
+        if ( ! empty( $atts['status'] ) ) {
+            $args['status'] = $atts['status'];
+        }
+        
+        if ( ! empty( $atts['type'] ) ) {
+            $args['type'] = $atts['type'];
+        }
+        
+        $transactions = $database->get_transactions( $args );
+        
+        if ( empty( $transactions ) ) {
+            return '<div class="marzpay-no-transactions">No transactions found.</div>';
+        }
+        
+        ob_start();
+        include MARZPAY_PLUGIN_DIR . 'templates/shortcode-transactions.php';
+        return ob_get_clean();
+    }
+    
+    /**
+     * AJAX: Collect money
+     */
+    public function ajax_collect_money() {
+        check_ajax_referer( 'marzpay_nonce', 'nonce' );
+        
+        $amount = intval( $_POST['amount'] );
+        $phone = sanitize_text_field( $_POST['phone'] );
+        $reference = sanitize_text_field( $_POST['reference'] );
+        $description = sanitize_text_field( $_POST['description'] );
+        $callback_url = esc_url_raw( $_POST['callback_url'] );
+        $country = sanitize_text_field( $_POST['country'] );
+        
+        $api_client = MarzPay_API_Client::get_instance();
+        
+        if ( ! $api_client->is_configured() ) {
+            wp_send_json_error( array( 'message' => 'API credentials not configured' ) );
+        }
+        
+        // Validate phone number
+        $validated_phone = $api_client->validate_phone_number( $phone, $country );
+        if ( ! $validated_phone ) {
+            wp_send_json_error( array( 'message' => 'Invalid phone number format' ) );
+        }
+        
+        $data = array(
+            'amount' => $amount,
+            'phone_number' => $validated_phone,
+            'reference' => $reference ?: uniqid( 'order_' ),
+            'description' => $description,
+            'callback_url' => $callback_url,
+            'country' => $country
+        );
+        
+        $result = $api_client->collect_money( $data );
+        
+        if ( isset( $result['status'] ) && $result['status'] === 'success' ) {
+            // Store transaction in database
+            $database = MarzPay_Database::get_instance();
+            $database->insert_transaction( array(
+                'uuid' => $result['data']['transaction']['uuid'],
+                'reference' => $result['data']['transaction']['reference'],
+                'type' => 'collection',
+                'status' => $result['data']['transaction']['status'],
+                'amount' => $amount,
+                'phone_number' => $validated_phone,
+                'description' => $description,
+                'callback_url' => $callback_url,
+                'provider' => $result['data']['collection']['provider'],
+                'metadata' => $result
+            ));
+            
+            wp_send_json_success( $result );
+        } else {
+            wp_send_json_error( $result );
+        }
+    }
+    
+    /**
+     * AJAX: Send money
+     */
+    public function ajax_send_money() {
+        check_ajax_referer( 'marzpay_nonce', 'nonce' );
+        
+        $amount = intval( $_POST['amount'] );
+        $phone = sanitize_text_field( $_POST['phone'] );
+        $reference = sanitize_text_field( $_POST['reference'] );
+        $description = sanitize_text_field( $_POST['description'] );
+        $callback_url = esc_url_raw( $_POST['callback_url'] );
+        $country = sanitize_text_field( $_POST['country'] );
+        
+        $api_client = MarzPay_API_Client::get_instance();
+        
+        if ( ! $api_client->is_configured() ) {
+            wp_send_json_error( array( 'message' => 'API credentials not configured' ) );
+        }
+        
+        // Validate phone number
+        $validated_phone = $api_client->validate_phone_number( $phone, $country );
+        if ( ! $validated_phone ) {
+            wp_send_json_error( array( 'message' => 'Invalid phone number format' ) );
+        }
+        
+        $data = array(
+            'amount' => $amount,
+            'phone_number' => $validated_phone,
+            'reference' => $reference ?: uniqid( 'withdrawal_' ),
+            'description' => $description,
+            'callback_url' => $callback_url,
+            'country' => $country
+        );
+        
+        $result = $api_client->send_money( $data );
+        
+        if ( isset( $result['status'] ) && $result['status'] === 'success' ) {
+            // Store transaction in database
+            $database = MarzPay_Database::get_instance();
+            $database->insert_transaction( array(
+                'uuid' => $result['data']['transaction']['uuid'],
+                'reference' => $result['data']['transaction']['reference'],
+                'type' => 'withdrawal',
+                'status' => $result['data']['transaction']['status'],
+                'amount' => $amount,
+                'phone_number' => $validated_phone,
+                'description' => $description,
+                'callback_url' => $callback_url,
+                'provider' => $result['data']['withdrawal']['provider'],
+                'metadata' => $result
+            ));
+            
+            wp_send_json_success( $result );
+        } else {
+            wp_send_json_error( $result );
+        }
+    }
 }
+
+// Initialize shortcodes
+MarzPay_Shortcodes::get_instance();

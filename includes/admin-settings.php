@@ -1,187 +1,263 @@
 <?php
+/**
+ * MarzPay Admin Settings
+ * 
+ * Handles admin settings page and configuration
+ */
+
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-add_action('admin_menu', function() {
-    add_options_page(
-        __('MarzPay Settings', 'marzpay-collections'),
-        'MarzPay',
+class MarzPay_Admin_Settings {
+    
+    private static $instance = null;
+    
+    public static function get_instance() {
+        if ( null === self::$instance ) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    private function __construct() {
+        add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+        add_action( 'admin_init', array( $this, 'register_settings' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+    }
+    
+    /**
+     * Add admin menu
+     */
+    public function add_admin_menu() {
+        // Main MarzPay menu
+        add_menu_page(
+            __( 'MarzPay', 'marzpay' ),
+            __( 'MarzPay', 'marzpay' ),
+            'manage_options',
+            'marzpay-dashboard',
+            array( $this, 'dashboard_page' ),
+            'dashicons-money-alt',
+            30
+        );
+        
+        // Dashboard submenu
+        add_submenu_page(
+            'marzpay-dashboard',
+            __( 'Dashboard', 'marzpay' ),
+            __( 'Dashboard', 'marzpay' ),
+            'manage_options',
+            'marzpay-dashboard',
+            array( $this, 'dashboard_page' )
+        );
+        
+        // Transactions submenu
+        add_submenu_page(
+            'marzpay-dashboard',
+            __( 'Transactions', 'marzpay' ),
+            __( 'Transactions', 'marzpay' ),
+            'manage_options',
+            'marzpay-transactions',
+            array( $this, 'transactions_page' )
+        );
+        
+        // Webhooks submenu
+        add_submenu_page(
+            'marzpay-dashboard',
+            __( 'Webhooks', 'marzpay' ),
+            __( 'Webhooks', 'marzpay' ),
+            'manage_options',
+            'marzpay-webhooks',
+            array( $this, 'webhooks_page' )
+        );
+        
+        // Settings submenu
+        add_submenu_page(
+            'marzpay-dashboard',
+            __( 'Settings', 'marzpay' ),
+            __( 'Settings', 'marzpay' ),
         'manage_options',
         'marzpay-settings',
-        'marzpay_settings_page'
-    );
-});
-
-add_action('admin_init', function() {
-    register_setting('marzpay_settings_group', 'marzpay_api_user');
-    register_setting('marzpay_settings_group', 'marzpay_api_key');
-    register_setting('marzpay_settings_group', 'marzpay_callback_url');
-});
-
-// Handle test API connection
-add_action('admin_post_test_marzpay_api', 'test_marzpay_api_connection');
-
-function test_marzpay_api_connection() {
-    if (!current_user_can('manage_options')) {
-        wp_die('Unauthorized');
+            array( $this, 'settings_page' )
+        );
     }
-
-    // Verify nonce for security
-    if (!isset($_POST['test_marzpay_api_nonce']) || !wp_verify_nonce($_POST['test_marzpay_api_nonce'], 'test_marzpay_api')) {
-        wp_die('Security check failed. Please try again.');
-    }
-
-    $api_user = get_option('marzpay_api_user');
-    $api_key = get_option('marzpay_api_key');
-
-    if (empty($api_user) || empty($api_key)) {
-        wp_redirect(add_query_arg('test_result', 'missing_credentials', admin_url('options-general.php?page=marzpay-settings')));
-        exit;
-    }
-
-    // Get test phone number from form
-    $test_phone = isset($_POST['test_phone']) ? sanitize_text_field($_POST['test_phone']) : '256759983853';
     
-    // Test with the minimum required amount (500 UGX) and let the API client generate the UUID
-    $result = marzpay_request_payment(500, $test_phone);
-    
-    if (isset($result['status']) && $result['status'] === 'success') {
-        wp_redirect(add_query_arg('test_result', 'success', admin_url('options-general.php?page=marzpay-settings')));
-    } else {
-        $error_message = isset($result['message']) ? $result['message'] : 'Unknown error';
+    /**
+     * Register settings
+     */
+    public function register_settings() {
+        // API Settings
+        register_setting( 'marzpay_settings_group', 'marzpay_api_user' );
+        register_setting( 'marzpay_settings_group', 'marzpay_api_key' );
+        register_setting( 'marzpay_settings_group', 'marzpay_environment' );
         
-        // Truncate error message to avoid URI too long errors
-        if (strlen($error_message) > 200) {
-            $error_message = substr($error_message, 0, 200) . '...';
+        // Webhook Settings
+        register_setting( 'marzpay_settings_group', 'marzpay_webhook_secret' );
+        
+        // General Settings
+        register_setting( 'marzpay_settings_group', 'marzpay_default_currency' );
+        register_setting( 'marzpay_settings_group', 'marzpay_default_country' );
+        register_setting( 'marzpay_settings_group', 'marzpay_success_page' );
+        register_setting( 'marzpay_settings_group', 'marzpay_failure_page' );
+        
+        // Add settings sections
+        add_settings_section(
+            'marzpay_api_section',
+            __( 'API Configuration', 'marzpay' ),
+            array( $this, 'api_section_callback' ),
+            'marzpay-settings'
+        );
+        
+        add_settings_section(
+            'marzpay_webhook_section',
+            __( 'Webhook Configuration', 'marzpay' ),
+            array( $this, 'webhook_section_callback' ),
+            'marzpay-settings'
+        );
+        
+        add_settings_section(
+            'marzpay_general_section',
+            __( 'General Settings', 'marzpay' ),
+            array( $this, 'general_section_callback' ),
+            'marzpay-settings'
+        );
+    }
+    
+    /**
+     * Enqueue admin scripts
+     */
+    public function enqueue_admin_scripts( $hook ) {
+        if ( strpos( $hook, 'marzpay' ) !== false ) {
+            wp_enqueue_script( 'marzpay-admin', MARZPAY_PLUGIN_URL . 'assets/js/admin.js', array( 'jquery' ), MARZPAY_VERSION, true );
+            wp_enqueue_style( 'marzpay-admin', MARZPAY_PLUGIN_URL . 'assets/css/admin.css', array(), MARZPAY_VERSION );
+        }
+    }
+    
+    /**
+     * Dashboard page
+     */
+    public function dashboard_page() {
+        $api_client = MarzPay_API_Client::get_instance();
+        $database = MarzPay_Database::get_instance();
+        
+        // Get account info
+        $account = $api_client->get_account();
+        $balance = $api_client->get_balance();
+        
+        // Get transaction stats
+        $total_transactions = $database->get_transaction_count();
+        $successful_transactions = $database->get_transaction_count( array( 'status' => 'successful' ) );
+        $pending_transactions = $database->get_transaction_count( array( 'status' => 'pending' ) );
+        $failed_transactions = $database->get_transaction_count( array( 'status' => 'failed' ) );
+        
+        // Get recent transactions
+        $recent_transactions = $database->get_transactions( array( 'limit' => 10 ) );
+        
+        include MARZPAY_PLUGIN_DIR . 'templates/admin-dashboard.php';
+    }
+    
+    /**
+     * Transactions page
+     */
+    public function transactions_page() {
+        $database = MarzPay_Database::get_instance();
+        
+        // Handle filters
+        $filters = array();
+        if ( isset( $_GET['status'] ) && ! empty( $_GET['status'] ) ) {
+            $filters['status'] = sanitize_text_field( $_GET['status'] );
+        }
+        if ( isset( $_GET['type'] ) && ! empty( $_GET['type'] ) ) {
+            $filters['type'] = sanitize_text_field( $_GET['type'] );
+        }
+        if ( isset( $_GET['provider'] ) && ! empty( $_GET['provider'] ) ) {
+            $filters['provider'] = sanitize_text_field( $_GET['provider'] );
         }
         
-        // Store detailed error in transient for display
-        set_transient('marzpay_test_error_details', $result, 60);
+        // Pagination
+        $page = isset( $_GET['paged'] ) ? max( 1, intval( $_GET['paged'] ) ) : 1;
+        $per_page = 20;
+        $offset = ( $page - 1 ) * $per_page;
         
-        wp_redirect(add_query_arg(array(
-            'test_result' => 'failed',
-            'error_message' => urlencode($error_message)
-        ), admin_url('options-general.php?page=marzpay-settings')));
-    }
-    exit;
-}
-
-function marzpay_settings_page() {
-    $test_result = isset($_GET['test_result']) ? $_GET['test_result'] : '';
-    $error_message = isset($_GET['error_message']) ? urldecode($_GET['error_message']) : '';
-    $detailed_error = get_transient('marzpay_test_error_details');
-    
-    // Clear the transient after displaying
-    if ($detailed_error) {
-        delete_transient('marzpay_test_error_details');
+        $filters['limit'] = $per_page;
+        $filters['offset'] = $offset;
+        
+        $transactions = $database->get_transactions( $filters );
+        $total_transactions = $database->get_transaction_count( $filters );
+        $total_pages = ceil( $total_transactions / $per_page );
+        
+        include MARZPAY_PLUGIN_DIR . 'templates/admin-transactions.php';
     }
     
-    ?>
-    <div class="wrap">
-        <h1><?php _e('MarzPay Settings', 'marzpay-collections'); ?></h1>
+    /**
+     * Webhooks page
+     */
+    public function webhooks_page() {
+        $database = MarzPay_Database::get_instance();
+        $webhooks = $database->get_webhooks();
         
-        <?php if ($test_result === 'success'): ?>
-            <div class="notice notice-success">
-                <p>✅ API connection test successful! Your MarzPay API credentials are working correctly.</p>
-            </div>
-        <?php elseif ($test_result === 'failed'): ?>
-            <div class="notice notice-error">
-                <p>❌ API connection test failed!</p>
-                <p><strong>Error:</strong> <?php echo esc_html($error_message); ?></p>
-                
-                <?php if ($detailed_error): ?>
-                    <details style="margin-top: 10px;">
-                        <summary><strong>View Detailed Error Information</strong></summary>
-                        <div style="background: #f9f9f9; padding: 10px; margin-top: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                            <pre><?php echo esc_html(print_r($detailed_error, true)); ?></pre>
-                        </div>
-                    </details>
-                <?php endif; ?>
-            </div>
-        <?php elseif ($test_result === 'missing_credentials'): ?>
-            <div class="notice notice-warning">
-                <p>⚠️ Please enter your API credentials before testing the connection.</p>
-            </div>
-        <?php endif; ?>
-
-        <form method="post" action="options.php">
-            <?php settings_fields('marzpay_settings_group'); ?>
-            <?php do_settings_sections('marzpay_settings_group'); ?>
-            <table class="form-table">
-                <tr valign="top">
-                    <th scope="row">API User</th>
-                    <td>
-                        <input type="text" name="marzpay_api_user" value="<?php echo esc_attr(get_option('marzpay_api_user')); ?>" class="regular-text" placeholder="your_api_username" />
-                        <p class="description">Enter your MarzPay API username</p>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">API Key</th>
-                    <td>
-                        <input type="password" name="marzpay_api_key" value="<?php echo esc_attr(get_option('marzpay_api_key')); ?>" class="regular-text" placeholder="your_api_key_here" />
-                        <p class="description">Enter your MarzPay API key</p>
-                    </td>
-                </tr>
-                <tr valign="top">
-                    <th scope="row">Callback URL</th>
-                    <td>
-                        <input type="url" name="marzpay_callback_url" value="<?php echo esc_attr(get_option('marzpay_callback_url')); ?>" class="regular-text" placeholder="https://yoursite.com/marzpay-callback" />
-                        <p class="description">URL where MarzPay will send payment notifications. Leave empty to use default: <?php echo home_url('/marzpay-callback'); ?></p>
-                    </td>
-                </tr>
-            </table>
-            <?php submit_button(__('Save Settings', 'marzpay-collections')); ?>
-        </form>
-
-        <hr style="margin: 30px 0;">
-
-        <h2>Test API Connection</h2>
-        <p>Click the button below to test if your API credentials are working correctly:</p>
-        <p><strong>Test Amount:</strong> 500 UGX (minimum required by MarzPay)</p>
-        <p><strong>Test Phone:</strong> Enter your phone number below to test with your own number</p>
-        <p><strong>Reference:</strong> Will be automatically generated as a valid UUID</p>
+        include MARZPAY_PLUGIN_DIR . 'templates/admin-webhooks.php';
+    }
+    
+    /**
+     * Settings page
+     */
+    public function settings_page() {
+        if ( isset( $_POST['submit'] ) ) {
+            $this->save_settings();
+        }
         
-        <form method="post" action="<?php echo admin_url('admin-post.php'); ?>">
-            <input type="hidden" name="action" value="test_marzpay_api">
-            <?php wp_nonce_field('test_marzpay_api', 'test_marzpay_api_nonce'); ?>
-            
-            <table class="form-table">
-                <tr valign="top">
-                    <th scope="row">Test Phone Number</th>
-                    <td>
-                        <input type="text" name="test_phone" value="256759983853" class="regular-text" placeholder="256759983853" />
-                        <p class="description">Enter your phone number to test the API. Formats supported: 256759983853, 0759983853, or +256759983853</p>
-                    </td>
-                </tr>
-            </table>
-            
-            <button type="submit" class="button button-secondary">Test API Connection</button>
-        </form>
-
-        <hr style="margin: 30px 0;">
-
-        <h2>Shortcode Usage</h2>
-        <p>Use this shortcode to display a payment button:</p>
-        <code>[marzpay_button amount="1000" phone="256759983853"]</code>
+        include MARZPAY_PLUGIN_DIR . 'templates/admin-settings.php';
+    }
+    
+    /**
+     * Save settings
+     */
+    private function save_settings() {
+        if ( ! wp_verify_nonce( $_POST['marzpay_settings_nonce'], 'marzpay_save_settings' ) ) {
+            wp_die( 'Security check failed' );
+        }
         
-        <h3>Parameters:</h3>
-        <ul>
-            <li><strong>amount</strong>: Payment amount in UGX (minimum: 500, maximum: 10,000,000)</li>
-            <li><strong>phone</strong>: Phone number (required, will be prefixed with +256 if not present)</li>
-        </ul>
+        // Save API settings
+        update_option( 'marzpay_api_user', sanitize_text_field( $_POST['marzpay_api_user'] ) );
+        update_option( 'marzpay_api_key', sanitize_text_field( $_POST['marzpay_api_key'] ) );
+        update_option( 'marzpay_environment', sanitize_text_field( $_POST['marzpay_environment'] ) );
         
-        <h3>Phone Number Formats Supported:</h3>
-        <ul>
-            <li><code>256759983853</code> → converts to <code>+256759983853</code></li>
-            <li><code>0759983853</code> → converts to <code>+256759983853</code></li>
-            <li><code>+256759983853</code> → used as-is</li>
-        </ul>
+        // Save webhook settings
+        if ( ! empty( $_POST['marzpay_webhook_secret'] ) ) {
+            update_option( 'marzpay_webhook_secret', sanitize_text_field( $_POST['marzpay_webhook_secret'] ) );
+        }
         
-        <h3>Amount Requirements:</h3>
-        <ul>
-            <li><strong>Minimum:</strong> 500 UGX</li>
-            <li><strong>Maximum:</strong> 10,000,000 UGX</li>
-            <li><strong>Format:</strong> Whole numbers only (e.g., 1000 for UGX 1,000)</li>
-        </ul>
-    </div>
-    <?php
+        // Save general settings
+        update_option( 'marzpay_default_currency', sanitize_text_field( $_POST['marzpay_default_currency'] ) );
+        update_option( 'marzpay_default_country', sanitize_text_field( $_POST['marzpay_default_country'] ) );
+        update_option( 'marzpay_success_page', intval( $_POST['marzpay_success_page'] ) );
+        update_option( 'marzpay_failure_page', intval( $_POST['marzpay_failure_page'] ) );
+        
+        add_action( 'admin_notices', function() {
+            echo '<div class="notice notice-success is-dismissible"><p>' . __( 'Settings saved successfully!', 'marzpay' ) . '</p></div>';
+        });
+    }
+    
+    /**
+     * API section callback
+     */
+    public function api_section_callback() {
+        echo '<p>' . __( 'Configure your MarzPay API credentials and environment settings.', 'marzpay' ) . '</p>';
+    }
+    
+    /**
+     * Webhook section callback
+     */
+    public function webhook_section_callback() {
+        echo '<p>' . __( 'Configure webhook settings for receiving payment notifications.', 'marzpay' ) . '</p>';
+    }
+    
+    /**
+     * General section callback
+     */
+    public function general_section_callback() {
+        echo '<p>' . __( 'Configure general plugin settings.', 'marzpay' ) . '</p>';
+    }
 }
+
+// Initialize admin settings
+MarzPay_Admin_Settings::get_instance();

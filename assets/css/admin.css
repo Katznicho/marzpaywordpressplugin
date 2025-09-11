@@ -1,0 +1,524 @@
+/**
+ * MarzPay Admin Styles
+ */
+
+.marzpay-admin-page {
+    max-width: 1200px;
+}
+
+.marzpay-admin-page h1 {
+    margin-bottom: 20px;
+}
+
+.marzpay-admin-page .nav-tab-wrapper {
+    margin-bottom: 20px;
+}
+
+.marzpay-admin-page .tab-content {
+    display: none;
+}
+
+.marzpay-admin-page .tab-content.active {
+    display: block;
+}
+
+/* Dashboard Widget */
+.marzpay-dashboard-widget {
+    padding: 0;
+}
+
+.marzpay-dashboard-widget .marzpay-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.marzpay-dashboard-widget .marzpay-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 15px;
+}
+
+.marzpay-dashboard-widget .marzpay-stat-item {
+    text-align: center;
+    flex: 1;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+}
+
+.marzpay-dashboard-widget .marzpay-stat-number {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #0073aa;
+    margin-bottom: 5px;
+}
+
+.marzpay-dashboard-widget .marzpay-stat-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.marzpay-dashboard-widget .marzpay-transactions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+
+.marzpay-dashboard-widget .marzpay-transactions-table th,
+.marzpay-dashboard-widget .marzpay-transactions-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.marzpay-dashboard-widget .marzpay-transactions-table th {
+    background: #f9f9f9;
+    font-weight: bold;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.marzpay-dashboard-widget .marzpay-dashboard-actions {
+    text-align: center;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.marzpay-dashboard-widget .marzpay-dashboard-actions .button {
+    margin: 0 5px;
+}
+
+/* Status Badges */
+.marzpay-status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.marzpay-status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.marzpay-status-processing {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.marzpay-status-successful {
+    background: #d4edda;
+    color: #155724;
+}
+
+.marzpay-status-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.marzpay-status-cancelled {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+/* Type Badges */
+.marzpay-type-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.marzpay-type-collection {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.marzpay-type-withdrawal {
+    background: #ffeaa7;
+    color: #856404;
+}
+
+.marzpay-type-charge {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.marzpay-type-refund {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Provider Badges */
+.marzpay-provider-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.marzpay-provider-mtn {
+    background: #ffd700;
+    color: #000;
+}
+
+.marzpay-provider-airtel {
+    background: #ff0000;
+    color: #fff;
+}
+
+/* Tables */
+.marzpay-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.marzpay-table th,
+.marzpay-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.marzpay-table th {
+    background: #f8f9fa;
+    font-weight: bold;
+    color: #333;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.marzpay-table tr:hover {
+    background: #f8f9fa;
+}
+
+.marzpay-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Filters */
+.marzpay-filters {
+    background: #f8f9fa;
+    padding: 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.marzpay-filters .filter-group {
+    display: inline-block;
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+.marzpay-filters label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+}
+
+.marzpay-filters select,
+.marzpay-filters input {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.marzpay-filters .filter-actions {
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+/* Pagination */
+.marzpay-pagination {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.marzpay-pagination .page-numbers {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 2px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    text-decoration: none;
+    color: #0073aa;
+    background: #fff;
+}
+
+.marzpay-pagination .page-numbers:hover {
+    background: #f8f9fa;
+}
+
+.marzpay-pagination .page-numbers.current {
+    background: #0073aa;
+    color: #fff;
+    border-color: #0073aa;
+}
+
+.marzpay-pagination .page-numbers.dots {
+    border: none;
+    background: none;
+    color: #666;
+}
+
+/* Cards */
+.marzpay-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.marzpay-card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* Webhook Management */
+.marzpay-webhook-item {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.marzpay-webhook-item .webhook-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.marzpay-webhook-item .webhook-name {
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+}
+
+.marzpay-webhook-item .webhook-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.marzpay-webhook-item .webhook-status.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.marzpay-webhook-item .webhook-status.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.marzpay-webhook-item .webhook-details {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.marzpay-webhook-item .webhook-actions {
+    text-align: right;
+}
+
+.marzpay-webhook-item .webhook-actions .button {
+    margin-left: 5px;
+}
+
+/* Forms */
+.marzpay-form-group {
+    margin-bottom: 20px;
+}
+
+.marzpay-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.marzpay-form-group input,
+.marzpay-form-group select,
+.marzpay-form-group textarea {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.marzpay-form-group input:focus,
+.marzpay-form-group select:focus,
+.marzpay-form-group textarea:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0,115,170,0.2);
+}
+
+.marzpay-form-group .description {
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Buttons */
+.marzpay-button {
+    background: #0073aa;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+}
+
+.marzpay-button:hover {
+    background: #005177;
+    color: white;
+}
+
+.marzpay-button.secondary {
+    background: #6c757d;
+}
+
+.marzpay-button.secondary:hover {
+    background: #545b62;
+}
+
+.marzpay-button.danger {
+    background: #dc3545;
+}
+
+.marzpay-button.danger:hover {
+    background: #c82333;
+}
+
+.marzpay-button.success {
+    background: #28a745;
+}
+
+.marzpay-button.success:hover {
+    background: #218838;
+}
+
+.marzpay-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+/* Loading States */
+.marzpay-loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+
+.marzpay-loading::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #666;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: marzpay-spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes marzpay-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .marzpay-dashboard-widget .marzpay-stats {
+        flex-direction: column;
+    }
+    
+    .marzpay-filters .filter-group {
+        display: block;
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .marzpay-webhook-item .webhook-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .marzpay-webhook-item .webhook-actions {
+        text-align: left;
+        margin-top: 10px;
+    }
+    
+    .marzpay-table {
+        font-size: 13px;
+    }
+    
+    .marzpay-table th,
+    .marzpay-table td {
+        padding: 8px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .marzpay-button,
+    .marzpay-filters,
+    .marzpay-pagination {
+        display: none;
+    }
+    
+    .marzpay-table {
+        border: 1px solid #000;
+    }
+    
+    .marzpay-table th,
+    .marzpay-table td {
+        border: 1px solid #000;
+    }
+}

@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name:       MarzPay Collections
+ * Plugin Name:       MarzPay
  * Plugin URI:        https://wearemarz.com/wordpress-plugin
- * Description:       Accept mobile money payments via MarzPay Collections API in WordPress. Features include payment buttons, phone number validation, amount limits, UUID generation, and configurable callback URLs. Perfect for businesses in Uganda accepting mobile payments.
- * Version:           1.0.0
+ * Description:       Complete MarzPay integration for WordPress. Handle collections, withdrawals, webhooks, and transaction management with MTN and Airtel mobile money. Features include payment buttons, phone number validation, amount limits, UUID generation, configurable callback URLs, and comprehensive admin dashboard.
+ * Version:           2.0.0
  * Requires at least: 5.0
  * Tested up to:     6.4
  * Requires PHP:      7.4
@@ -11,39 +11,47 @@
  * Author URI:        https://wearemarz.com
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       marzpay-collections
+ * Text Domain:       marzpay
  * Domain Path:       /languages
  * Network:           false
  * 
- * @package           MarzPayCollections
+ * @package           MarzPay
  * @author            MarzPay
  * @copyright         2025 MarzPay
  * @license           GPL-2.0-or-later
  * 
- * MarzPay Collections is free software: you can redistribute it and/or modify
+ * MarzPay is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 2 of the License, or
  * any later version.
  * 
- * MarzPay Collections is distributed in the hope that it will be useful,
+ * MarzPay is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with MarzPay Collections. If not, see https://www.gnu.org/licenses/gpl-2.0.html.
+ * along with MarzPay. If not, see https://www.gnu.org/licenses/gpl-2.0.html.
  */
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+// Define plugin constants
+define( 'MARZPAY_VERSION', '2.0.0' );
 define( 'MARZPAY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MARZPAY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'MARZPAY_PLUGIN_FILE', __FILE__ );
+define( 'MARZPAY_API_BASE_URL', 'https://wallet.wearemarz.com/api' );
 
-// Includes
+// Include required files
+require_once MARZPAY_PLUGIN_DIR . 'includes/class-marzpay-api-client.php';
+require_once MARZPAY_PLUGIN_DIR . 'includes/class-marzpay-database.php';
+require_once MARZPAY_PLUGIN_DIR . 'includes/class-marzpay-webhooks.php';
 require_once MARZPAY_PLUGIN_DIR . 'includes/admin-settings.php';
-require_once MARZPAY_PLUGIN_DIR . 'includes/api-client.php';
 require_once MARZPAY_PLUGIN_DIR . 'includes/shortcodes.php';
+require_once MARZPAY_PLUGIN_DIR . 'includes/admin-dashboard.php';
+require_once MARZPAY_PLUGIN_DIR . 'includes/functions.php';
 
 // Add debug shortcode for testing
 add_shortcode('marzpay_debug', 'marzpay_debug_shortcode');
@@ -102,14 +110,93 @@ function marzpay_debug_shortcode($atts) {
     return $output;
 }
 
+/**
+ * Main MarzPay Plugin Class
+ */
+class MarzPay_Plugin {
+    
+    private static $instance = null;
+    
+    public static function get_instance() {
+        if ( null === self::$instance ) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    private function __construct() {
+        add_action( 'init', array( $this, 'init' ) );
+        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+        add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+    }
+    
+    public function init() {
+        // Load text domain
+        load_plugin_textdomain( 'marzpay', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+        
+        // Initialize database
+        MarzPay_Database::get_instance();
+        
+        // Initialize webhooks
+        MarzPay_Webhooks::get_instance();
+    }
+    
+    public function enqueue_scripts() {
+        wp_enqueue_script( 'marzpay-frontend', MARZPAY_PLUGIN_URL . 'assets/js/frontend.js', array( 'jquery' ), MARZPAY_VERSION, true );
+        wp_enqueue_style( 'marzpay-frontend', MARZPAY_PLUGIN_URL . 'assets/css/frontend.css', array(), MARZPAY_VERSION );
+        
+        wp_localize_script( 'marzpay-frontend', 'marzpay_ajax', array(
+            'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'nonce' => wp_create_nonce( 'marzpay_nonce' )
+        ));
+    }
+    
+    public function admin_enqueue_scripts( $hook ) {
+        if ( strpos( $hook, 'marzpay' ) !== false ) {
+            wp_enqueue_script( 'marzpay-admin', MARZPAY_PLUGIN_URL . 'assets/js/admin.js', array( 'jquery' ), MARZPAY_VERSION, true );
+            wp_enqueue_style( 'marzpay-admin', MARZPAY_PLUGIN_URL . 'assets/css/admin.css', array(), MARZPAY_VERSION );
+        }
+    }
+}
+
+// Initialize the plugin
+function marzpay_init() {
+    return MarzPay_Plugin::get_instance();
+}
+add_action( 'plugins_loaded', 'marzpay_init' );
+
 // Activation hook
 function marzpay_activate() {
-    // Maybe create DB tables or default options later
+    // Create database tables
+    MarzPay_Database::create_tables();
+    
+    // Set default options
+    add_option( 'marzpay_version', MARZPAY_VERSION );
+    add_option( 'marzpay_environment', 'test' );
+    add_option( 'marzpay_webhook_secret', wp_generate_password( 32, false ) );
+    
+    // Flush rewrite rules for webhook endpoints
+    flush_rewrite_rules();
 }
 register_activation_hook( __FILE__, 'marzpay_activate' );
 
 // Deactivation hook
 function marzpay_deactivate() {
-    // Cleanup or disable CRON jobs if any
+    // Flush rewrite rules
+    flush_rewrite_rules();
 }
 register_deactivation_hook( __FILE__, 'marzpay_deactivate' );
+
+// Uninstall hook
+function marzpay_uninstall() {
+    // Remove database tables
+    MarzPay_Database::drop_tables();
+    
+    // Remove options
+    delete_option( 'marzpay_version' );
+    delete_option( 'marzpay_api_user' );
+    delete_option( 'marzpay_api_key' );
+    delete_option( 'marzpay_environment' );
+    delete_option( 'marzpay_webhook_secret' );
+}
+register_uninstall_hook( __FILE__, 'marzpay_uninstall' );
