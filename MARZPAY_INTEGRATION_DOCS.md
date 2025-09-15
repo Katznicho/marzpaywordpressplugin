@@ -209,7 +209,7 @@ func main() {
 ### **Configuration**
 
 1. Go to **Settings → MarzPay**
-2. Enter your **API User** and **API Key**
+2. Enter your **API Key** and **API Secret**
 3. (Optional) Set custom **Callback URL**
 4. Test API connection
 5. Save settings
@@ -725,8 +725,8 @@ $marzpay = new MarzPay([
 
 Use these credentials for testing:
 
-- **API User**: `sandbox_user`
-- **API Key**: `sandbox_key`
+- **API Key**: `sandbox_user`
+- **API Secret**: `sandbox_key`
 - **Test Phone**: `256759983853`
 - **Test Amount**: `500` (minimum)
 
@@ -780,7 +780,7 @@ Select the library that matches your technology stack from the options above.
 ### **2. Get API Credentials**
 - Sign up at [wearemarz.com](https://wearemarz.com)
 - Navigate to API settings
-- Copy your API User and API Key
+- Copy your API Key and API Secret
 
 ### **3. Install Library**
 Follow the installation instructions for your chosen library.

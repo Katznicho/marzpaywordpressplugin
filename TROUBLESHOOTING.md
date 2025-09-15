@@ -7,7 +7,7 @@ If you're getting the "Invalid API response" error when testing your MarzPay sho
 ### Step 1: Check API Credentials
 
 1. Go to **WordPress Admin → Settings → MarzPay**
-2. Verify that both **API User** and **API Key** are filled in
+2. Verify that both **API Key** and **API Secret** are filled in
 3. Make sure there are no extra spaces before or after the credentials
 
 ### Step 2: Test API Connection

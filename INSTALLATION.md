@@ -35,8 +35,8 @@
    - In WordPress admin, click **MarzPay → Settings**
 
 2. **Enter API Credentials**
-   - **API User**: Your MarzPay API username
    - **API Key**: Your MarzPay API key
+   - **API Secret**: Your MarzPay API secret
    - Click **Save Settings**
 
 3. **Test Connection**

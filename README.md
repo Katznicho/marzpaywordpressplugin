@@ -78,7 +78,7 @@ MarzPay is a mobile money payment platform that allows businesses to collect pay
 
 ### **MarzPay Requirements**
 - **API Account**: Active MarzPay Collections API account
-- **API Credentials**: Valid API User and API Key
+- **API Credentials**: Valid API Key and API Secret
 - **Business Verification**: Verified business account with MarzPay
 
 ## 🛠️ Installation
@@ -120,8 +120,8 @@ git clone https://github.com/Katznicho/marzpaywordpressplugin.git marzpay-collec
 2. You'll see the configuration panel
 
 ### **Step 2: Enter API Credentials**
-- **API User**: Your MarzPay API username
 - **API Key**: Your MarzPay API key
+- **API Secret**: Your MarzPay API secret
 - **Callback URL**: (Optional) Custom webhook URL
 
 ### **Step 3: Test Connection**
@@ -256,7 +256,7 @@ Authorization: Basic {base64_encode(API_USER:API_KEY)}
 | Code | Description | Solution |
 |------|-------------|----------|
 | `VALIDATION_ERROR` | Input validation failed | Check amount, phone, and reference format |
-| `INVALID_CREDENTIALS` | API credentials invalid | Verify API User and Key |
+| `INVALID_CREDENTIALS` | API credentials invalid | Verify API Key and Secret |
 | `MINIMUM_AMOUNT` | Amount below 500 UGX | Increase amount to minimum |
 | `MAXIMUM_AMOUNT` | Amount above 10,000,000 UGX | Decrease amount to maximum |
 | `INVALID_PHONE` | Phone number format invalid | Use supported phone formats |

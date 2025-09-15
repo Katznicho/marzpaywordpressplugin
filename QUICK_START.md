@@ -24,7 +24,7 @@ git clone https://github.com/Katznicho/marzpaywordpressplugin.git
 
 ### **3. Configure API Credentials**
 - Go to **Settings → MarzPay**
-- Enter your **API User** and **API Key**
+- Enter your **API Key** and **API Secret**
 - (Optional) Set custom **Callback URL**
 - Click **"Save Settings"**
 
@@ -71,8 +71,8 @@ git clone https://github.com/Katznicho/marzpaywordpressplugin.git
 ## ⚙️ Common Settings
 
 ### **API Credentials**
-- **API User**: Your MarzPay username
 - **API Key**: Your MarzPay API key
+- **API Secret**: Your MarzPay API secret
 - **Callback URL**: Webhook notifications (optional)
 
 ### **Default Callback**

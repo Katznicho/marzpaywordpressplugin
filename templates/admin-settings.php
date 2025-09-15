@@ -25,24 +25,24 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="marzpay_api_user"><?php _e( 'API User', 'marzpay' ); ?></label>
+                            <label for="marzpay_api_user"><?php _e( 'API Key', 'marzpay' ); ?></label>
                         </th>
                         <td>
                             <input type="text" id="marzpay_api_user" name="marzpay_api_user" 
                                    value="<?php echo esc_attr( get_option( 'marzpay_api_user' ) ); ?>" 
-                                   class="regular-text" required />
-                            <p class="description"><?php _e( 'Your MarzPay API username.', 'marzpay' ); ?></p>
+                                   class="regular-text" placeholder="your_api_key_here" required />
+                            <p class="description"><?php _e( 'Your MarzPay API key.', 'marzpay' ); ?></p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">
-                            <label for="marzpay_api_key"><?php _e( 'API Key', 'marzpay' ); ?></label>
+                            <label for="marzpay_api_key"><?php _e( 'API Secret', 'marzpay' ); ?></label>
                         </th>
                         <td>
                             <input type="password" id="marzpay_api_key" name="marzpay_api_key" 
                                    value="<?php echo esc_attr( get_option( 'marzpay_api_key' ) ); ?>" 
-                                   class="regular-text" required />
-                            <p class="description"><?php _e( 'Your MarzPay API key.', 'marzpay' ); ?></p>
+                                   class="regular-text" placeholder="your_api_secret_here" required />
+                            <p class="description"><?php _e( 'Your MarzPay API secret.', 'marzpay' ); ?></p>
                         </td>
                     </tr>
                 </table>

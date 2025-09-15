@@ -337,7 +337,7 @@ class MarzPay_Admin_Settings {
         $api_client = MarzPay_API_Client::get_instance();
         
         if ( ! $api_client->is_configured() ) {
-            wp_send_json_error( array( 'message' => 'API credentials not configured. Please enter your API User and API Key.' ) );
+            wp_send_json_error( array( 'message' => 'API credentials not configured. Please enter your API Key and API Secret.' ) );
         }
         
         // Test API connection by getting account information

@@ -72,7 +72,7 @@ Accept mobile money payments in WordPress using the MarzPay Collections API. Per
 ## Configuration
 
 1. Go to **WordPress Admin → Settings → MarzPay**
-2. Enter your **API User** and **API Key** from MarzPay
+2. Enter your **API Key** and **API Secret** from MarzPay
 3. (Optional) Set a custom **Callback URL**
 4. Click **"Save Settings"**
 5. Test the API connection

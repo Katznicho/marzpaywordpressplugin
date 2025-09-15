@@ -136,7 +136,7 @@ The plugin includes basic CSS styling. You can customize the appearance by addin
 
 **1. "API credentials not configured"**
 - Go to MarzPay → Settings
-- Enter your MarzPay API User and API Key
+- Enter your MarzPay API Key and API Secret
 
 **2. "Invalid phone number format"**
 - Use international format: `+256XXXXXXXXX`
