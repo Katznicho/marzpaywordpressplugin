@@ -1,0 +1,373 @@
+/**
+ * MarzPay WooCommerce Admin Styles
+ */
+
+/* Payment Gateway Selection */
+.payment_method_marzpay {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 10px 0;
+    background: #f9f9f9;
+}
+
+.payment_method_marzpay label {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.payment_method_marzpay input[type="radio"] {
+    margin-right: 10px;
+}
+
+.payment_method_marzpay .payment_box {
+    margin-top: 15px;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}
+
+/* Payment Instructions */
+.marzpay-payment-instructions {
+    background: #e8f4fd;
+    border: 1px solid #b8daff;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.marzpay-payment-instructions h3 {
+    margin-top: 0;
+    color: #004085;
+}
+
+.marzpay-payment-instructions ol {
+    margin: 15px 0;
+    padding-left: 20px;
+}
+
+.marzpay-payment-instructions li {
+    margin: 8px 0;
+    color: #004085;
+}
+
+.marzpay-payment-instructions p {
+    margin: 10px 0 0 0;
+    color: #004085;
+}
+
+/* Phone Number Field */
+#marzpay_phone_field {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+#marzpay_phone_field h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+#marzpay_phone_field .form-row-wide {
+    margin-bottom: 15px;
+}
+
+#marzpay_phone_field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#marzpay_phone_field input[type="tel"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#marzpay_phone_field .description {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Payment Status Display */
+.marzpay-payment-status {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.marzpay-payment-status h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.marzpay-status-success {
+    color: #155724;
+    background: #d4edda;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #c3e6cb;
+}
+
+.marzpay-status-pending {
+    color: #856404;
+    background: #fff3cd;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ffeaa7;
+}
+
+.marzpay-status-failed {
+    color: #721c24;
+    background: #f8d7da;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #f5c6cb;
+}
+
+/* Admin Order Meta Box */
+#marzpay-order-details .widefat {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#marzpay-order-details .widefat td {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+#marzpay-order-details .widefat td:first-child {
+    font-weight: bold;
+    width: 40%;
+}
+
+/* Order List Columns */
+.column-marzpay_status {
+    width: 120px;
+}
+
+.marzpay-status {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.marzpay-status-successful,
+.marzpay-status-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.marzpay-status-pending,
+.marzpay-status-processing {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.marzpay-status-failed,
+.marzpay-status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.marzpay-status-unknown {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+/* Admin Dashboard Stats */
+.marzpay-woocommerce-stats {
+    margin: 20px 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-box {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.stat-box h3 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #666;
+    text-transform: uppercase;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 0;
+    color: #333;
+}
+
+.stat-number.success {
+    color: #46b450;
+}
+
+.stat-number.pending {
+    color: #ffb900;
+}
+
+.stat-number.failed {
+    color: #dc3232;
+}
+
+/* Orders Table */
+.marzpay-orders-table {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.marzpay-orders-table .wp-list-table {
+    margin: 0;
+}
+
+.marzpay-orders-table .wp-list-table th,
+.marzpay-orders-table .wp-list-table td {
+    padding: 12px 8px;
+}
+
+/* Order Status Badges */
+.order-status {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.order-status-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.order-status-processing {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.order-status-completed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.order-status-failed {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Buttons */
+.check-status {
+    margin-left: 5px;
+}
+
+#refresh-all-statuses {
+    margin-left: 10px;
+}
+
+/* Loading States */
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .marzpay-orders-table .wp-list-table {
+        font-size: 14px;
+    }
+    
+    .marzpay-orders-table .wp-list-table th,
+    .marzpay-orders-table .wp-list-table td {
+        padding: 8px 4px;
+    }
+    
+    .payment_method_marzpay {
+        padding: 10px;
+    }
+    
+    .marzpay-payment-instructions {
+        padding: 15px;
+    }
+}
+
+/* Checkout Page Enhancements */
+.woocommerce-checkout .payment_method_marzpay {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.woocommerce-checkout .payment_method_marzpay label {
+    color: white;
+}
+
+.woocommerce-checkout .payment_method_marzpay .payment_box {
+    background: rgba(255, 255, 255, 0.95);
+    color: #333;
+}
+
+/* Mobile Money Icon */
+.payment_method_marzpay img {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+/* Success/Error Messages */
+.marzpay-message {
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+    border-left: 4px solid;
+}
+
+.marzpay-message.success {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.marzpay-message.error {
+    background: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+}
+
+.marzpay-message.info {
+    background: #d1ecf1;
+    border-color: #17a2b8;
+    color: #0c5460;
+}

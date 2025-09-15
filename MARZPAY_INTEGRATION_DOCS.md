@@ -736,8 +736,8 @@ Use these credentials for testing:
 
 ### **WordPress Integration**
 - [Complete WordPress Plugin Guide](#wordpress-plugin)
+- [WooCommerce Integration Guide](WOOCOMMERCE-INTEGRATION.md)
 - [Custom Payment Forms](examples/wordpress-custom-forms.md)
-- [WooCommerce Integration](examples/woocommerce-integration.md)
 - [Multi-site Setup](examples/wordpress-multisite.md)
 
 ### **JavaScript Integration**

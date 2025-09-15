@@ -33,6 +33,7 @@ MarzPay is a mobile money payment platform that allows businesses to collect pay
 ### **Plugin Benefits**
 
 - **Easy Integration**: Simple shortcode system for payment buttons
+- **WooCommerce Ready**: Native payment gateway for e-commerce stores
 - **Secure Payments**: Professional-grade security and validation
 - **Flexible Configuration**: Customizable settings and callback URLs
 - **Mobile Optimized**: Works perfectly on all devices
@@ -42,6 +43,7 @@ MarzPay is a mobile money payment platform that allows businesses to collect pay
 
 ### **Core Features**
 - ✅ **Payment Button Shortcodes** - Easy to use `[marzpay_button]`
+- ✅ **WooCommerce Integration** - Native payment gateway for WooCommerce stores
 - ✅ **Admin Settings Panel** - Professional configuration interface
 - ✅ **API Integration** - Full MarzPay Collections API support
 - ✅ **Phone Number Support** - Multiple format validation

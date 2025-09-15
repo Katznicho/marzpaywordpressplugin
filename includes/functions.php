@@ -363,3 +363,133 @@ function marzpay_get_plugin_url() {
 function marzpay_get_plugin_dir() {
     return MARZPAY_PLUGIN_DIR;
 }
+
+// WooCommerce AJAX handlers
+add_action( 'wp_ajax_marzpay_check_woocommerce_status', 'marzpay_ajax_check_woocommerce_status' );
+add_action( 'wp_ajax_marzpay_refresh_all_statuses', 'marzpay_ajax_refresh_all_statuses' );
+add_action( 'wp_ajax_marzpay_get_order_status', 'marzpay_ajax_get_order_status' );
+
+/**
+ * AJAX handler for checking WooCommerce payment status
+ */
+function marzpay_ajax_check_woocommerce_status() {
+    check_ajax_referer( 'marzpay_nonce', 'nonce' );
+    
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+    }
+    
+    $uuid = sanitize_text_field( $_POST['uuid'] );
+    $order_id = isset( $_POST['order_id'] ) ? intval( $_POST['order_id'] ) : 0;
+    
+    if ( ! $uuid ) {
+        wp_send_json_error( array( 'message' => 'Invalid transaction UUID' ) );
+    }
+    
+    $api_client = MarzPay_API_Client::get_instance();
+    $result = $api_client->get_transaction( $uuid );
+    
+    if ( isset( $result['status'] ) && $result['status'] === 'success' ) {
+        $transaction = $result['data']['transaction'] ?? array();
+        $status = $transaction['status'] ?? '';
+        
+        if ( $order_id ) {
+            $order = wc_get_order( $order_id );
+            if ( $order ) {
+                $order->update_meta_data( '_marzpay_status', $status );
+                $order->save();
+                
+                // Update order status based on payment status
+                switch ( $status ) {
+                    case 'successful':
+                    case 'completed':
+                        $order->payment_complete( $uuid );
+                        break;
+                    case 'failed':
+                    case 'cancelled':
+                        $order->update_status( 'failed' );
+                        break;
+                }
+            }
+        }
+        
+        wp_send_json_success( array( 'status' => $status ) );
+    } else {
+        wp_send_json_error( array( 'message' => 'Failed to check payment status' ) );
+    }
+}
+
+/**
+ * AJAX handler for refreshing all payment statuses
+ */
+function marzpay_ajax_refresh_all_statuses() {
+    check_ajax_referer( 'marzpay_nonce', 'nonce' );
+    
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( array( 'message' => 'Insufficient permissions' ) );
+    }
+    
+    $orders = wc_get_orders( array(
+        'payment_method' => 'marzpay',
+        'limit' => 100,
+        'status' => array( 'pending', 'processing' )
+    ) );
+    
+    $checked = 0;
+    $api_client = MarzPay_API_Client::get_instance();
+    
+    foreach ( $orders as $order ) {
+        $transaction_uuid = $order->get_meta( '_marzpay_transaction_uuid' );
+        
+        if ( $transaction_uuid ) {
+            $result = $api_client->get_transaction( $transaction_uuid );
+            
+            if ( isset( $result['status'] ) && $result['status'] === 'success' ) {
+                $transaction = $result['data']['transaction'] ?? array();
+                $status = $transaction['status'] ?? '';
+                
+                $order->update_meta_data( '_marzpay_status', $status );
+                $order->save();
+                
+                // Update order status based on payment status
+                switch ( $status ) {
+                    case 'successful':
+                    case 'completed':
+                        $order->payment_complete( $transaction_uuid );
+                        break;
+                    case 'failed':
+                    case 'cancelled':
+                        $order->update_status( 'failed' );
+                        break;
+                }
+                
+                $checked++;
+            }
+        }
+    }
+    
+    wp_send_json_success( array( 'checked' => $checked ) );
+}
+
+/**
+ * AJAX handler for getting order status (for order received page)
+ */
+function marzpay_ajax_get_order_status() {
+    check_ajax_referer( 'marzpay_nonce', 'nonce' );
+    
+    $order_id = intval( $_POST['order_id'] );
+    
+    if ( ! $order_id ) {
+        wp_send_json_error( array( 'message' => 'Invalid order ID' ) );
+    }
+    
+    $order = wc_get_order( $order_id );
+    
+    if ( ! $order || $order->get_payment_method() !== 'marzpay' ) {
+        wp_send_json_error( array( 'message' => 'Order not found or not paid with MarzPay' ) );
+    }
+    
+    $status = $order->get_meta( '_marzpay_status' );
+    
+    wp_send_json_success( array( 'status' => $status ) );
+}

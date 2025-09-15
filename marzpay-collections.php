@@ -3,7 +3,7 @@
  * Plugin Name:       MarzPay
  * Plugin URI:        https://wearemarz.com/wordpress-plugin
  * Description:       Complete MarzPay integration for WordPress. Handle collections, withdrawals, webhooks, and transaction management with MTN and Airtel mobile money. Features include payment buttons, phone number validation, amount limits, UUID generation, configurable callback URLs, and comprehensive admin dashboard.
- * Version:           2.0.0
+ * Version:           2.1.0
  * Requires at least: 5.0
  * Tested up to:     6.4
  * Requires PHP:      7.4
@@ -38,7 +38,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 // Define plugin constants
-define( 'MARZPAY_VERSION', '2.0.0' );
+define( 'MARZPAY_VERSION', '2.1.0' );
 define( 'MARZPAY_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MARZPAY_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'MARZPAY_PLUGIN_FILE', __FILE__ );
@@ -48,6 +48,17 @@ define( 'MARZPAY_API_BASE_URL', 'https://wallet.wearemarz.com/api' );
 require_once MARZPAY_PLUGIN_DIR . 'includes/class-marzpay-api-client.php';
 require_once MARZPAY_PLUGIN_DIR . 'includes/class-marzpay-database.php';
 require_once MARZPAY_PLUGIN_DIR . 'includes/class-marzpay-webhooks.php';
+
+// Include WooCommerce integration files only after plugins are loaded
+add_action( 'plugins_loaded', function() {
+    if ( class_exists( 'WooCommerce' ) ) {
+        require_once MARZPAY_PLUGIN_DIR . 'includes/class-marzpay-woocommerce-gateway.php';
+        require_once MARZPAY_PLUGIN_DIR . 'includes/class-marzpay-woocommerce-manager.php';
+        
+        // Initialize the WooCommerce manager
+        MarzPay_WooCommerce_Manager::get_instance();
+    }
+});
 require_once MARZPAY_PLUGIN_DIR . 'includes/admin-settings.php';
 require_once MARZPAY_PLUGIN_DIR . 'includes/shortcodes.php';
 require_once MARZPAY_PLUGIN_DIR . 'includes/admin-dashboard.php';
