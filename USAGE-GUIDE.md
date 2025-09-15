@@ -8,7 +8,14 @@
 3. Go to **MarzPay → Settings** in your WordPress admin
 4. Enter your MarzPay API credentials
 
-### 2. Basic Usage
+### 2. WooCommerce Integration (Optional)
+1. Install WooCommerce plugin if not already installed
+2. Go to **WooCommerce → Settings → Payments**
+3. Find **"MarzPay Mobile Money"** and click **"Set up"**
+4. Enable the gateway and enter your API credentials
+5. Save changes
+
+### 3. Basic Usage
 
 #### Collect Money from Customers
 Add this shortcode to any page or post:
@@ -150,6 +157,59 @@ The plugin includes basic CSS styling. You can customize the appearance by addin
 - Make sure the plugin is activated
 - Check if you have the correct shortcode
 - Verify API credentials are configured
+
+## 🛒 WooCommerce Usage
+
+### **Setting Up WooCommerce Integration**
+
+1. **Install WooCommerce** (if not already installed)
+   - Go to **Plugins → Add New**
+   - Search "WooCommerce" and install
+
+2. **Configure MarzPay Gateway**
+   - Go to **WooCommerce → Settings → Payments**
+   - Find **"MarzPay Mobile Money"** and click **"Set up"**
+   - Enable the gateway
+   - Enter your API Key and API Secret
+   - Save changes
+
+3. **Test WooCommerce Integration**
+   - Add a product to your cart
+   - Go to checkout
+   - Select **"Mobile Money (Airtel & MTN)"** as payment method
+   - Enter a test phone number: `256781230949`
+   - Complete the order
+
+### **WooCommerce Features**
+
+- ✅ **Native Payment Gateway**: Integrated as WooCommerce payment method
+- ✅ **Mobile Money Support**: Airtel Money & MTN Mobile Money
+- ✅ **Order Management**: Automatic order status updates
+- ✅ **Webhook Integration**: Real-time payment notifications
+- ✅ **Admin Dashboard**: View MarzPay orders in WooCommerce admin
+- ✅ **Bulk Actions**: Check payment status for multiple orders
+
+### **WooCommerce Order Flow**
+
+1. **Customer places order** → Status: Pending Payment
+2. **Payment initiated** → Status: Processing
+3. **Payment confirmed** → Status: Completed
+4. **Payment failed** → Status: Failed
+
+### **WooCommerce Troubleshooting**
+
+**Payment methods not showing:**
+- Ensure WooCommerce is activated
+- Check MarzPay gateway is enabled
+- Verify API credentials are correct
+- Clear browser cache
+
+**Orders not updating:**
+- Check webhook URL configuration
+- Verify API credentials
+- Check WordPress debug logs
+
+For detailed WooCommerce setup, see [WOOCOMMERCE-INTEGRATION.md](WOOCOMMERCE-INTEGRATION.md)
 
 ### Getting Help
 

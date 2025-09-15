@@ -28,12 +28,19 @@ git clone https://github.com/Katznicho/marzpaywordpressplugin.git
 - (Optional) Set custom **Callback URL**
 - Click **"Save Settings"**
 
-### **4. Test Connection**
+### **4. WooCommerce Integration (Optional)**
+- Install **WooCommerce** plugin if not already installed
+- Go to **WooCommerce → Settings → Payments**
+- Find **"MarzPay Mobile Money"** and click **"Set up"**
+- Enable the gateway and enter your API credentials
+- Save changes
+
+### **5. Test Connection**
 - Click **"Test API Connection"**
 - Enter your phone number: `256759983853`
 - Verify success message
 
-### **5. Use Shortcode**
+### **6. Use Shortcode**
 ```php
 [marzpay_button amount="1000" phone="256759983853"]
 ```
@@ -102,12 +109,43 @@ https://yoursite.com/marzpay-callback
 - Increase amount to 500+ UGX
 - Use whole numbers only
 
+## 🛒 WooCommerce Quick Setup
+
+### **For E-commerce Stores**
+
+1. **Install WooCommerce** (if not already installed)
+   - Go to **Plugins → Add New**
+   - Search "WooCommerce" and install
+
+2. **Enable MarzPay Gateway**
+   - Go to **WooCommerce → Settings → Payments**
+   - Find **"MarzPay Mobile Money"** and click **"Set up"**
+   - Enable the gateway and save
+
+3. **Test WooCommerce Integration**
+   - Add a product to cart
+   - Go to checkout
+   - Select **"Mobile Money (Airtel & MTN)"**
+   - Enter test phone: `256781230949`
+   - Complete order
+
+### **WooCommerce Features**
+- ✅ Native payment gateway
+- ✅ Mobile money support (MTN & Airtel)
+- ✅ Order management
+- ✅ Webhook integration
+- ✅ Admin dashboard
+
+**For detailed WooCommerce setup, see [WOOCOMMERCE-INTEGRATION.md](WOOCOMMERCE-INTEGRATION.md)**
+
 ## 📚 Next Steps
 
 1. **Read Full Documentation**: [README.md](README.md)
-2. **Troubleshooting Guide**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-3. **Report Issues**: [GitHub Issues](https://github.com/Katznicho/marzpaywordpressplugin/issues)
-4. **Get Support**: Contact MarzPay support
+2. **WooCommerce Integration**: [WOOCOMMERCE-INTEGRATION.md](WOOCOMMERCE-INTEGRATION.md)
+3. **Testing Guide**: [TESTING-GUIDE.md](TESTING-GUIDE.md)
+4. **Troubleshooting Guide**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+5. **Report Issues**: [GitHub Issues](https://github.com/Katznicho/marzpaywordpressplugin/issues)
+6. **Get Support**: Contact MarzPay support
 
 ## 🚀 Advanced Features
 

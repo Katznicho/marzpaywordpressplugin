@@ -14,6 +14,7 @@
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
+- [WooCommerce Integration](#-woocommerce-integration)
 - [API Reference](#api-reference)
 - [Security](#security)
 - [Troubleshooting](#troubleshooting)
@@ -50,6 +51,17 @@ MarzPay is a mobile money payment platform that allows businesses to collect pay
 - ✅ **Amount Validation** - Built-in limits (500 - 10,000,000 UGX)
 - ✅ **UUID Generation** - Secure reference creation
 - ✅ **Callback Support** - Configurable webhook URLs
+
+### **WooCommerce Features**
+- ✅ **Payment Gateway** - Native WooCommerce payment method
+- ✅ **Mobile Money Support** - Airtel Money & MTN Mobile Money
+- ✅ **Order Management** - Automatic order status updates
+- ✅ **Webhook Integration** - Real-time payment notifications
+- ✅ **Admin Dashboard** - Dedicated WooCommerce orders management
+- ✅ **Bulk Actions** - Check payment status for multiple orders
+- ✅ **Order Meta Boxes** - Payment details in order edit page
+- ✅ **Phone Validation** - Multiple phone number formats
+- ✅ **Auto-refresh** - Automatic status checking for pending payments
 
 ### **Security Features**
 - ✅ **Input Validation** - All inputs sanitized and validated
@@ -141,6 +153,96 @@ git clone https://github.com/Katznicho/marzpaywordpressplugin.git marzpay-collec
 ```php
 [marzpay_button amount="1000" phone="256759983853"]
 ```
+
+## 🛒 WooCommerce Integration
+
+### **Overview**
+
+The MarzPay plugin provides native WooCommerce integration as a payment gateway, allowing customers to pay using mobile money (Airtel Money & MTN Mobile Money) directly through the checkout process.
+
+### **Setup WooCommerce Integration**
+
+#### **Step 1: Install WooCommerce**
+1. Go to **Plugins → Add New**
+2. Search for "WooCommerce"
+3. Install and activate
+4. Complete the setup wizard
+
+#### **Step 2: Enable MarzPay Gateway**
+1. Go to **WooCommerce → Settings → Payments**
+2. Find **"MarzPay Mobile Money"** in the list
+3. Click **"Set up"** or **"Manage"**
+4. Configure the gateway:
+   - ✅ **Enable/Disable**: Enable
+   - ✅ **Title**: Mobile Money (Airtel & MTN)
+   - ✅ **Description**: Pay securely with your mobile money account
+   - ✅ **API Key**: Your MarzPay API Key
+   - ✅ **API Secret**: Your MarzPay API Secret
+   - ✅ **Test Mode**: Enable for testing
+5. Click **"Save changes"**
+
+#### **Step 3: Test the Integration**
+1. Add a product to your cart
+2. Go to checkout
+3. Select **"Mobile Money (Airtel & MTN)"** as payment method
+4. Enter a test phone number: `256781230949`
+5. Complete the order
+
+### **WooCommerce Features**
+
+#### **Customer Experience**
+- ✅ **Seamless Checkout**: Integrated payment method selection
+- ✅ **Phone Number Field**: Automatic phone input for mobile money
+- ✅ **Network Selection**: Choose between MTN and Airtel
+- ✅ **Payment Instructions**: Clear guidance for customers
+- ✅ **Status Updates**: Real-time payment status on order pages
+
+#### **Admin Features**
+- ✅ **Order Management**: View MarzPay orders in WooCommerce admin
+- ✅ **Payment Status**: Check payment status for individual orders
+- ✅ **Bulk Actions**: Check payment status for multiple orders
+- ✅ **Order Meta**: Payment details in order edit page
+- ✅ **Webhook Integration**: Automatic order status updates
+
+### **WooCommerce Order Status Flow**
+
+1. **Pending Payment** → Customer places order
+2. **Processing** → Payment initiated via MarzPay
+3. **Completed** → Payment confirmed via webhook
+4. **Failed** → Payment failed or cancelled
+
+### **Test Phone Numbers**
+
+| Network | Phone Number | Description |
+|---------|--------------|-------------|
+| MTN | 256781230949 | Test MTN number |
+| Airtel | 256759983853 | Test Airtel number |
+| Test | 256700000000 | Generic test number |
+
+### **WooCommerce Shortcode Usage**
+
+You can also use MarzPay shortcodes within WooCommerce:
+
+```php
+// In product description or custom fields
+[marzpay_button amount="5000" phone="256759983853" description="Product payment"]
+```
+
+### **Troubleshooting WooCommerce**
+
+#### **Payment Methods Not Showing**
+1. Ensure WooCommerce is activated
+2. Check that MarzPay gateway is enabled
+3. Verify API credentials are correct
+4. Clear browser cache and try incognito mode
+
+#### **Orders Not Updating**
+1. Check webhook URL configuration
+2. Verify API credentials
+3. Check WordPress debug logs
+4. Test API connection in MarzPay settings
+
+For detailed WooCommerce integration guide, see [WOOCOMMERCE-INTEGRATION.md](WOOCOMMERCE-INTEGRATION.md)
 
 ### **Shortcode Parameters**
 
