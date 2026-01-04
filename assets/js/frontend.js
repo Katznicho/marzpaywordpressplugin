@@ -102,7 +102,7 @@
                 errors.push('Phone number is required');
                 isValid = false;
             } else if (!MarzPayFrontend.validatePhoneNumber(phone)) {
-                errors.push('Please enter a valid Uganda phone number (e.g., 0701234567)');
+                errors.push('Invalid phone number format. Please use: +256759983853, 256759983853, or 0759983853');
                 isValid = false;
             }
             
@@ -115,28 +115,30 @@
         },
         
         validatePhoneNumber: function(phone) {
-            // Remove all non-numeric characters
-            phone = phone.replace(/\D/g, '');
+            // Remove all non-numeric characters except +
+            var cleaned = phone.replace(/[^0-9+]/g, '');
             
             // Check if it's a valid Uganda phone number
-            // Format: 256XXXXXXXXX or 07XXXXXXXX
-            return (phone.length === 12 && phone.startsWith('256')) || 
-                   (phone.length === 9 && phone.startsWith('7'));
+            // Accept formats that match API client validation:
+            // +256XXXXXXXXX (13 chars), 256XXXXXXXXX (12 digits), or 07XXXXXXXXX (10 digits)
+            if (cleaned.length === 13 && cleaned.startsWith('+256')) {
+                return true;
+            } else if (cleaned.length === 12 && cleaned.startsWith('256')) {
+                return true;
+            } else if (cleaned.length === 10 && cleaned.startsWith('0')) {
+                return true;
+            }
+            
+            return false;
         },
         
         formatPhoneNumber: function() {
             var $input = $(this);
-            var value = $input.val().replace(/\D/g, '');
+            var value = $input.val();
             
-            // Format as 07X XXX XXX
-            if (value.length >= 3) {
-                value = value.substring(0, 3) + ' ' + value.substring(3);
-            }
-            if (value.length >= 7) {
-                value = value.substring(0, 7) + ' ' + value.substring(7, 10);
-            }
-            
-            $input.val(value);
+            // Allow users to type freely - don't restrict formatting during input
+            // Just store the raw value, formatting can happen on blur if needed
+            // The validation will handle different formats
         },
         
         formatAmount: function() {
