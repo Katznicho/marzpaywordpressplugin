@@ -149,8 +149,19 @@ class MarzPay_WooCommerce_Gateway extends WC_Payment_Gateway {
      * Validate phone number field
      */
     public function validate_phone_field() {
-        if ( $this->phone_required === 'yes' && empty( $_POST['marzpay_phone'] ) ) {
-            wc_add_notice( __( 'Mobile money phone number is required.', 'marzpay' ), 'error' );
+        if ( $this->phone_required === 'yes' ) {
+            if ( empty( $_POST['marzpay_phone'] ) ) {
+                wc_add_notice( __( 'Mobile money phone number is required.', 'marzpay' ), 'error' );
+            } else {
+                // Validate phone number format
+                $phone = sanitize_text_field( $_POST['marzpay_phone'] );
+                $api_client = MarzPay_API_Client::get_instance();
+                $validated_phone = $api_client->validate_phone_number( $phone );
+                
+                if ( ! $validated_phone ) {
+                    wc_add_notice( __( 'Invalid phone number format. Please use: +256759983853, 256759983853, or 0759983853', 'marzpay' ), 'error' );
+                }
+            }
         }
     }
     
@@ -161,9 +172,9 @@ class MarzPay_WooCommerce_Gateway extends WC_Payment_Gateway {
         $order = wc_get_order( $order_id );
         
         if ( ! $order ) {
+            wc_add_notice( __( 'Order not found.', 'marzpay' ), 'error' );
             return array(
-                'result' => 'failure',
-                'messages' => __( 'Order not found.', 'marzpay' )
+                'result' => 'failure'
             );
         }
         
@@ -174,9 +185,9 @@ class MarzPay_WooCommerce_Gateway extends WC_Payment_Gateway {
         } elseif ( ! empty( $order->get_billing_phone() ) ) {
             $phone = $order->get_billing_phone();
         } else {
+            wc_add_notice( __( 'Phone number is required for mobile money payment.', 'marzpay' ), 'error' );
             return array(
-                'result' => 'failure',
-                'messages' => __( 'Phone number is required for mobile money payment.', 'marzpay' )
+                'result' => 'failure'
             );
         }
         
@@ -185,9 +196,9 @@ class MarzPay_WooCommerce_Gateway extends WC_Payment_Gateway {
         $formatted_phone = $api_client->validate_phone_number( $phone );
         
         if ( ! $formatted_phone ) {
+            wc_add_notice( __( 'Invalid phone number format. Please use: +256759983853, 256759983853, or 0759983853', 'marzpay' ), 'error' );
             return array(
-                'result' => 'failure',
-                'messages' => __( 'Invalid phone number format. Please use format: 256759983853 or 0759983853', 'marzpay' )
+                'result' => 'failure'
             );
         }
         
@@ -242,9 +253,10 @@ class MarzPay_WooCommerce_Gateway extends WC_Payment_Gateway {
             
             $order->add_order_note( sprintf( __( 'MarzPay payment request failed: %s', 'marzpay' ), $error_message ) );
             
+            wc_add_notice( $error_message, 'error' );
+            
             return array(
-                'result' => 'failure',
-                'messages' => $error_message
+                'result' => 'failure'
             );
         }
     }
